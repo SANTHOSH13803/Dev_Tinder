@@ -11,10 +11,15 @@ app.post("/signup", async (req, res) => {
     emailId: "RamVeluru@gmail.com",
     password: "ramv13803"
   };
-  //  creating a new instance
-  const newUser = new User(user);
-  await newUser.save();
-  res.send("User created");
+  try {
+    //  creating a new instance
+    const newUser = new User(user);
+    await newUser.save();
+    res.send("User created");
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Something went wrong");
+  }
 });
 
 conectDatabase()
