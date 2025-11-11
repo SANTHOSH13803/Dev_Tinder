@@ -3,14 +3,10 @@ const conectDatabase = require("./config/database");
 const User = require("./models/user");
 const app = express();
 
+app.use(express.json());
+
 app.post("/signup", async (req, res) => {
-  const user = {
-    firstName: "Ram",
-    lastName: "Veluru",
-    age: 27,
-    emailId: "RamVeluru@gmail.com",
-    password: "ramv13803"
-  };
+  const user = req.body;
   try {
     //  creating a new instance
     const newUser = new User(user);
@@ -18,6 +14,15 @@ app.post("/signup", async (req, res) => {
     res.send("User created");
   } catch (error) {
     console.log(error);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+app.get("/feed", async (req, res) => {
+  try {
+    const allUsers = await User.find({});
+    res.send(allUsers);
+  } catch (error) {
     res.status(500).send("Something went wrong");
   }
 });
