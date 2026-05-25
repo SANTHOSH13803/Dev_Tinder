@@ -1,7 +1,10 @@
 const express = require("express");
 const conectDatabase = require("./config/database");
-const User = require("./models/user");
+const User = require("./models/user"); // USER MODEL
 const app = express();
+
+const dns = require("dns");
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 app.use(express.json());
 
@@ -14,6 +17,20 @@ app.post("/signup", async (req, res) => {
     res.send("User created");
   } catch (error) {
     console.log(error);
+    res.status(500).send("Something went wrong : " + error);
+  }
+});
+
+app.get("/user", async (req, res) => {
+  const userMail = req.body.emailId;
+  try {
+    const user = await User.findOne({ emailId: userMail });
+    if (!user) {
+      res.status(404).send("User not found");
+    } else {
+      res.send(user);
+    }
+  } catch (error) {
     res.status(500).send("Something went wrong");
   }
 });
@@ -22,6 +39,51 @@ app.get("/feed", async (req, res) => {
   try {
     const allUsers = await User.find({});
     res.send(allUsers);
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+});
+app.put("/user", async (req, res) => {
+  try {
+    const body = req.body;
+    const userID = body.userId; // take this from params
+
+    await User.findByIdAndUpdate(userID, body);
+
+    res.send("User Updated Successfully!");
+  } catch (error) {
+    res.status(500).send("Something went wrong");
+  }
+});
+app.delete("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+  try {
+    // 1. finding the user
+    const user = await User.findOne({ emailId: userEmail });
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // deleting by userId
+
+    const userId = user._id;
+    const deleteRes = await User.findByIdAndDelete(userId);
+
+    res.send("User Deleted Successfully");
+  } catch (error) {
+    return res.status(500).send("Something went wrong");
+  }
+});
+
+app.patch("/user", async (req, res) => {
+  try {
+    const body = req.body;
+    const userID = body.userId; // take this from params
+
+    await User.findByIdAndUpdate(userID, body);
+
+    res.send("User Updated Successfully!");
   } catch (error) {
     res.status(500).send("Something went wrong");
   }
