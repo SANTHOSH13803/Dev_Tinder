@@ -81,11 +81,25 @@ app.patch("/user", async (req, res) => {
     const body = req.body;
     const userID = body.userId; // take this from params
 
+    const ALLOWED_FEILDS = [
+      "firstName",
+      "lastName",
+      "about",
+      "skills",
+      "userId"
+    ];
+    const isAllowed = Object.keys(body).every((key) =>
+      ALLOWED_FEILDS.includes(key)
+    );
+    if (!isAllowed) {
+      throw new Error("Cannot Update user");
+    }
+
     await User.findByIdAndUpdate(userID, body);
 
     res.send("User Updated Successfully!");
   } catch (error) {
-    res.status(500).send("Something went wrong");
+    res.status(500).send("Something went wrong " + error.message);
   }
 });
 
