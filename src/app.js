@@ -11,6 +11,13 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   const user = req.body;
   try {
+    // Validation
+    const REQUIRED_FIELDS = ["emailId", "password"];
+
+    if (!user?.emailId || !user?.password) {
+      throw new Error("User Credentials required");
+    }
+
     //  creating a new instance
     const newUser = new User(user);
     await newUser.save();
