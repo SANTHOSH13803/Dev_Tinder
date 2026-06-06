@@ -1,9 +1,12 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const conectDatabase = require("./config/database");
 const User = require("./models/user"); // USER MODEL
 const app = express();
+const validator = require("validator");
 
 const dns = require("dns");
+const { validateOnSignUp } = require("./utils/validators");
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 app.use(express.json());
@@ -11,17 +14,45 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   const user = req.body;
   try {
-    // Validation
-    const REQUIRED_FIELDS = ["emailId", "password"];
-
-    if (!user?.emailId || !user?.password) {
-      throw new Error("User Credentials required");
-    }
+    // validtions
+    validateOnSignUp(req);
+    // Encrypt password
+    const hashPassword = await bcrypt.hash(user.password, 10);
 
     //  creating a new instance
-    const newUser = new User(user);
+    const newUser = new User({ ...user, password: hashPassword });
     await newUser.save();
     res.send("User created");
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Something went wrong : " + error);
+  }
+});
+app.post("/login", async (req, res) => {
+  try {
+    // validtions
+    const { emailId, password } = req.body;
+    // validate emailId
+    if (!validator.isEmail(emailId)) {
+      throw new Error("Not a valid email Id");
+    }
+
+    //get  Encrypt password from DB
+    const dbUser = await User.findOne({ emailId });
+    if (!dbUser) {
+      throw new Error("Email Not registered");
+    }
+    // use bcrypt compare method to validate password
+    const hashPassword = dbUser?.password;
+    const isValidPassword = await bcrypt.compare(password, hashPassword);
+
+    if (isValidPassword) {
+      // if true send response
+      res.send("Logged In successfully");
+    } else {
+      // if false throw error
+      throw new Error("Password Entered is not valid");
+    }
   } catch (error) {
     console.log(error);
     res.status(500).send("Something went wrong : " + error);
