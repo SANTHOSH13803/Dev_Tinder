@@ -1,15 +1,20 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
-const conectDatabase = require("./config/database");
-const User = require("./models/user"); // USER MODEL
 const app = express();
+const bcrypt = require("bcrypt");
 const validator = require("validator");
-
+const cookieParser = require("cookie-parser");
 const dns = require("dns");
+const jwt = require("jsonwebtoken");
+
+const User = require("./models/user"); // USER MODEL
+const conectDatabase = require("./config/database");
 const { validateOnSignUp } = require("./utils/validators");
+const userAuth = require("./middlewares/userAuth");
+
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   const user = req.body;
@@ -24,7 +29,6 @@ app.post("/signup", async (req, res) => {
     await newUser.save();
     res.send("User created");
   } catch (error) {
-    console.log(error);
     res.status(500).send("Something went wrong : " + error);
   }
 });
@@ -48,13 +52,16 @@ app.post("/login", async (req, res) => {
 
     if (isValidPassword) {
       // if true send response
+      const token = await jwt.sign({ _id: dbUser._id }, "DEV@TINDER123", {
+        expiresIn: "1d"
+      });
+      res.cookie("token", token);
       res.send("Logged In successfully");
     } else {
       // if false throw error
       throw new Error("Password Entered is not valid");
     }
   } catch (error) {
-    console.log(error);
     res.status(500).send("Something went wrong : " + error);
   }
 });
@@ -79,6 +86,19 @@ app.get("/feed", async (req, res) => {
     res.send(allUsers);
   } catch (error) {
     res.status(500).send("Something went wrong");
+  }
+});
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      throw new Error("User Not found");
+    }
+
+    res.send(user);
+  } catch (error) {
+    res.status(500).send("Something went wrong" + error);
   }
 });
 app.put("/user", async (req, res) => {
