@@ -48,13 +48,11 @@ app.post("/login", async (req, res) => {
     }
     // use bcrypt compare method to validate password
     const hashPassword = dbUser?.password;
-    const isValidPassword = await bcrypt.compare(password, hashPassword);
+    const isValidPassword = await dbUser.validatePassword(password);
 
     if (isValidPassword) {
       // if true send response
-      const token = await jwt.sign({ _id: dbUser._id }, "DEV@TINDER123", {
-        expiresIn: "1d"
-      });
+      const token = await dbUser.getJwt(); // custom User Method
       res.cookie("token", token);
       res.send("Logged In successfully");
     } else {
