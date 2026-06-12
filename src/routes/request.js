@@ -1,16 +1,69 @@
 const express = require("express");
 const userAuth = require("../middlewares/userAuth");
 const User = require("../models/user");
+const ConnectionRequestModel = require("../models/connectionRequest");
 
 const requestRouter = express.Router();
 
-requestRouter.get("/feed", async (req, res) => {
-  try {
-    const allUsers = await User.find({});
-    res.send(allUsers);
-  } catch (error) {
-    res.status(500).send("Something went wrong");
+requestRouter.post(
+  "/request/send/:status/:toUserId",
+  userAuth,
+  async (req, res) => {
+    try {
+      // this is basic implementation. Valiations not written yet
+      const { status, toUserId } = req.params;
+      const fromUserId = req.user._id;
+
+      // Valiations
+      // 1. if toUserId is valid(ie exists in our db)
+      // 2. if connection request already exists (to -> from or from-> to)
+      // 3. from -> from invalid connction request
+      // 4. interested and ignored status should only be allowed
+
+      if (!["interested", "ignored"].includes(status)) {
+        return res.status(400).json({
+          error: `Error : Not a valid status - ${status}`
+        });
+      }
+
+      const toUser = await User.findById(toUserId);
+      if (!toUser) {
+        return res.status(400).json({
+          error: `Error : Not a valid conneciton request`
+        });
+      }
+
+      const existingConnection = await ConnectionRequestModel.findOne({
+        $or: [
+          { fromUserId, toUserId },
+          { fromUserId: toUserId, toUserId: fromUserId }
+        ]
+      });
+
+      if (existingConnection) {
+        return res.status(400).json({
+          error: `Error : Connection Request Already exist`
+        });
+      }
+
+      const connectionRequest = new ConnectionRequestModel({
+        fromUserId,
+        toUserId,
+        status
+      });
+
+      const newConncection = await connectionRequest.save();
+
+      res.status(200).json({
+        data: newConncection,
+        success: true
+      });
+    } catch (error) {
+      res.status(400).json({
+        error: `Error :${error.message}`
+      });
+    }
   }
-});
+);
 
 module.exports = requestRouter;

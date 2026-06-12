@@ -47,6 +47,8 @@ const userSchema = new Schema(
   }
 );
 
+userSchema.index({ emailId: 1 });
+
 userSchema.methods.getJwt = async function () {
   const user = this;
   const token = await jwt.sign({ _id: user._id }, "DEV@TINDER123", {

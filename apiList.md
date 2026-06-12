@@ -11,6 +11,9 @@ profileRouter
 connectionsRequestRouter   
     - POST - /request/send/interseted/:userID  = Tinder Swipe right
     - POST - /request/send/ignored/:userID = Tinder Swipe left
+    for above we can make dynamic api's
+    /request/send/:status/:userID 
+
     - POST - /request/review/accepted/:requestID = Tinder profile Accepted
     - POST - /request/review/rejected/:requestID = Tinder profile Rejected
 
