@@ -16,7 +16,8 @@ connectionsRequestRouter
 
     - POST - /request/review/accepted/:requestID = Tinder profile Accepted
     - POST - /request/review/rejected/:requestID = Tinder profile Rejected
-
+    for above we can make dynamic api's
+        /request/review/:status/:requestId 
 User Router
     - GET - /user/connections = Tinder connections 
     - GET - /user/request  = Tinder profile connections

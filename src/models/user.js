@@ -47,7 +47,7 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.index({ emailId: 1 });
+// userSchema.index({ emailId: 1 });
 
 userSchema.methods.getJwt = async function () {
   const user = this;
