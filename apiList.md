@@ -19,6 +19,6 @@ connectionsRequestRouter
     for above we can make dynamic api's
         /request/review/:status/:requestId 
 User Router
-    - GET - /user/connections = Tinder connections 
-    - GET - /user/request  = Tinder profile connections
+    - GET - /user/connections = accepted connections 
+    - GET - /user/pending/request  - pending connection request
     - GET - /user/feed 
