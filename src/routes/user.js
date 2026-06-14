@@ -1,6 +1,8 @@
 const express = require("express");
 const userAuth = require("../middlewares/userAuth");
 const ConnectionRequestModel = require("../models/connectionRequest");
+const User = require("../models/user");
+const { USER_ALLOWED_FIELDS } = require("../utils/fields");
 
 const userRouter = express.Router();
 
@@ -46,6 +48,46 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     res.json({ data });
   } catch (error) {
     res.status(400).send(`Error : ${error.message}`);
+  }
+});
+
+userRouter.get("/user/feed", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const page = req.query?.page || 10;
+    const limit = req.query?.limit || 10;
+    const skip = (page - 1) * limit;
+    const connectionRequest = await ConnectionRequestModel.find({
+      $or: [
+        {
+          fromUserId: loggedInUser._id
+        },
+        {
+          toUserId: loggedInUser._id
+        }
+      ]
+    }).select({ fromUserId: 1, toUserId: 1 });
+
+    const hideFromFeedIds = new Set();
+
+    connectionRequest.forEach((each) => {
+      hideFromFeedIds.add(each.fromUserId.toString());
+      hideFromFeedIds.add(each.toUserId.toString());
+    });
+
+    const data = await User.find({
+      $and: [
+        { _id: { $nin: Array.from(hideFromFeedIds) } },
+        { _id: { $ne: loggedInUser._id } }
+      ]
+    })
+      .select(USER_ALLOWED_FIELDS)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({ data: data });
+  } catch (error) {
+    res.send("Error : " + error.message);
   }
 });
 module.exports = userRouter;
