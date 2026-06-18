@@ -28,9 +28,7 @@ export default function Login() {
       const data = await loginApi({
         body: values
       }).unwrap();
-
-      localStorage.setItem("token", JSON.stringify(data?.data));
-      dispatch(dispatch(addUser(data?.data)));
+      dispatch(addUser(data));
       navigate("/");
     } catch (error: any) {
       toast.error(error?.data?.error || "Something went wrong");

@@ -6,26 +6,10 @@ const baseQuery =   fetchBaseQuery(
         credentials : 'include'
         }
     );
-const baseQueryWithErrorHandling = async (
-  args: any,
-  api: any,
-  extraOptions: any
-) => {
-  const result = await baseQuery(args, api, extraOptions);
-  if(result.data){
-    return {data : result.data as any}.data
-  }
-  if (result.error) {
-    return {
-      error :(result.error.data as any)?.error,
-    };
-  }
 
-  return result
-};
 const commonApiSlice= createApi({
     reducerPath : 'commonApi',
-    baseQuery : baseQueryWithErrorHandling,
+    baseQuery : baseQuery,
     endpoints : () =>({}),
     
     

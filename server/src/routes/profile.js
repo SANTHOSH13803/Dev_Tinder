@@ -2,19 +2,19 @@ const express = require("express");
 const userAuth = require("../middlewares/userAuth");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+const { successResponse, errorResponse } = require("../config/messages");
 const profileRouter = express.Router();
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
     const user = req.user;
-
     if (!user) {
       throw new Error("User Not found");
     }
 
-    res.send(user);
+    return successResponse({ res, data: user, message: "User Found" });
   } catch (error) {
-    res.status(500).send("Something went wrong" + error);
+    return errorResponse({ res, error: error.message });
   }
 });
 

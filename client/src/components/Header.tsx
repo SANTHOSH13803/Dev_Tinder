@@ -1,14 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../store/api/user/userApi.slice";
 import { toast } from "react-toastify";
+import { removeUser } from "../store/slice/user";
+import { useAppDispatch } from "../store/hook";
 
 const Header = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [logoutApi] = useLogoutMutation();
   const handleLogout = async () => {
     const response = await logoutApi();
     if (response.data) {
-      localStorage.removeItem("token");
+      dispatch(removeUser());
       navigate("/login");
       return;
     }

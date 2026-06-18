@@ -22,8 +22,13 @@ const userApiSlice = commonApiSlice.injectEndpoints({
             method : "POST",
         })
     }),
-   })
+    getUser : builder.query<any, void>({
+        query : () =>({
+            url : '/profile/view',
+        })
+    }),
+   }),
 }
 )
 
-export const {useLoginUserMutation,useSignUpMutation, useLogoutMutation}  = userApiSlice;
+export const {useLoginUserMutation,useSignUpMutation, useLogoutMutation, useGetUserQuery}  = userApiSlice;
