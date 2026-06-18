@@ -5,6 +5,7 @@ const validator = require("validator");
 const cookieParser = require("cookie-parser");
 const dns = require("dns");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
 const User = require("./models/user"); // USER MODEL
 const conectDatabase = require("./config/database");
@@ -12,6 +13,13 @@ const { validateOnSignUp } = require("./utils/validators");
 const userAuth = require("./middlewares/userAuth");
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());

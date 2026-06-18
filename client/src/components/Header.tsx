@@ -1,4 +1,19 @@
+import { useNavigate } from "react-router-dom";
+import { useLogoutMutation } from "../store/api/user/userApi.slice";
+import { toast } from "react-toastify";
+
 const Header = () => {
+  const navigate = useNavigate();
+  const [logoutApi] = useLogoutMutation();
+  const handleLogout = async () => {
+    const response = await logoutApi();
+    if (response.data) {
+      localStorage.removeItem("token");
+      navigate("/login");
+      return;
+    }
+    toast.error("Something went wrong");
+  };
   return (
     <div className="navbar bg-base-300 shadow-sm">
       <div className="flex-1">
@@ -32,7 +47,9 @@ const Header = () => {
               <a>Settings</a>
             </li>
             <li>
-              <a>Logout</a>
+              <button type="button" onClick={handleLogout}>
+                Logout
+              </button>
             </li>
           </ul>
         </div>

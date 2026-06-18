@@ -17,9 +17,13 @@ authRouter.post("/signup", async (req, res) => {
     //  creating a new instance
     const newUser = new User({ ...user, password: hashPassword });
     await newUser.save();
-    res.send("User created");
+    res.status(200).json({
+      data: newUser,
+      message: "User Created Successfully",
+      success: true
+    });
   } catch (error) {
-    res.status(500).send("Something went wrong : " + error);
+    res.status(400).json({ error: error.message, success: false });
   }
 });
 authRouter.post("/login", async (req, res) => {
@@ -44,13 +48,16 @@ authRouter.post("/login", async (req, res) => {
       // if true send response
       const token = await dbUser.getJwt(); // custom User Method
       res.cookie("token", token);
-      res.send("Logged In successfully");
+      res.json({
+        data: dbUser,
+        success: true
+      });
     } else {
       // if false throw error
       throw new Error("Password Entered is not valid");
     }
   } catch (error) {
-    res.status(500).send("Something went wrong : " + error);
+    res.status(500).json({ error: error.message });
   }
 });
 authRouter.post("/logout", async (req, res) => {
@@ -58,6 +65,6 @@ authRouter.post("/logout", async (req, res) => {
     .cookie("token", null, {
       expires: new Date(Date.now())
     })
-    .send("Logged Out successfully");
+    .json({ data: "Logged Out successfully", success: true });
 });
 module.exports = authRouter;

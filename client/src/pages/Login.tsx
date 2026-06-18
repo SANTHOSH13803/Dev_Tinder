@@ -1,9 +1,40 @@
 import { useNavigate } from "react-router-dom";
+import { useLoginUserMutation } from "../store/api/user/userApi.slice";
+import { toast } from "react-toastify";
+import { Formik, Form } from "formik";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { addUser } from "../store/slice/user";
 
+interface LoginFormValues {
+  emailId: string;
+  password: string;
+}
+const initialValues: LoginFormValues = {
+  emailId: "",
+  password: ""
+};
 export default function Login() {
-  const navigte = useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleNavigate = () => {
-    navigte("/signUp");
+    navigate("/signUp");
+  };
+  const [loginApi] = useLoginUserMutation();
+  const [tooglePassword, setTooglePassword] = useState(false);
+
+  const handleLogin = async (values: LoginFormValues) => {
+    try {
+      const data = await loginApi({
+        body: values
+      }).unwrap();
+
+      localStorage.setItem("token", JSON.stringify(data?.data));
+      dispatch(dispatch(addUser(data?.data)));
+      navigate("/");
+    } catch (error: any) {
+      toast.error(error?.data?.error || "Something went wrong");
+    }
   };
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
@@ -15,42 +46,71 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="space-y-5">
-          <div>
-            <label className="block text-sm text-slate-300 mb-2">Email</label>
-            <input
-              type="email"
-              placeholder="john@example.com"
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+        <Formik<LoginFormValues>
+          initialValues={initialValues}
+          onSubmit={handleLogin}
+        >
+          {({ values, handleChange, handleBlur }) => (
+            <Form className="space-y-5">
+              <div>
+                <label className="block text-sm text-slate-300 mb-2">
+                  Email
+                </label>
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm text-slate-300">Password</label>
+                <input
+                  name="emailId"
+                  type="email"
+                  value={values.emailId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="john@example.com"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm text-slate-300">
+                    Password
+                  </label>
+
+                  <button
+                    type="button"
+                    className="text-sm text-blue-500 hover:text-blue-400"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+
+                <input
+                  name="password"
+                  type={tooglePassword ? "text" : "password"}
+                  value={values.password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  className="text-sm text-gray-300 hover:text-blue-400 w-full text-end"
+                  onClick={() => {
+                    setTooglePassword((prev) => !prev);
+                  }}
+                >
+                  Show password
+                </button>
+              </div>
 
               <button
-                type="button"
-                className="text-sm text-blue-500 hover:text-blue-400"
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-3 rounded-lg"
               >
-                Forgot Password?
+                Sign In
               </button>
-            </div>
-
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-3 rounded-lg"
-          >
-            Sign In
-          </button>
-        </form>
+            </Form>
+          )}
+        </Formik>
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">

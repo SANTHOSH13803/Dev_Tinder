@@ -8,9 +8,22 @@ const userApiSlice = commonApiSlice.injectEndpoints({
             method : "POST",
             body
         })
-    })
+    }),
+    signUp : builder.mutation({
+        query : ({body}) =>({
+            url : '/signUp',
+            method : "POST",
+            body
+        })
+    }),
+    logout : builder.mutation<{success: true}, void>({
+        query : () =>({
+            url : '/logout',
+            method : "POST",
+        })
+    }),
    })
 }
 )
 
-export const {useLoginUserMutation}  = userApiSlice;
+export const {useLoginUserMutation,useSignUpMutation, useLogoutMutation}  = userApiSlice;
