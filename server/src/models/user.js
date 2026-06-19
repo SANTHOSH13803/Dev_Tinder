@@ -4,10 +4,11 @@ const bcrypt = require("bcrypt");
 
 const { Schema } = mongoose;
 const validator = require("validator");
+const { USER_ALLOWED_FIELDS, pickFields } = require("../utils/fields");
 const userSchema = new Schema(
   {
     firstName: { type: String, required: true },
-    lastName: String,
+    lastName: { type: String, required: true },
     emailId: {
       type: String,
       required: true,
@@ -20,7 +21,6 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      unique: true,
       required: true,
       validate(value) {
         if (!validator.isStrongPassword(value)) {
@@ -28,13 +28,14 @@ const userSchema = new Schema(
         }
       }
     },
-    age: Number,
-    gender: String,
+    age: { type: Number, default: 18 },
+    gender: { type: String, default: "" },
     about: { type: String, default: "This is a demo about!" },
     // array of string
     skills: { type: [String] },
     photoURL: {
       type: String,
+      default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
       validate(value) {
         if (!validator.isURL(value)) {
           throw new Error("Invalid Photo URL" + value);
@@ -63,6 +64,12 @@ userSchema.methods.validatePassword = async function (password) {
   const isValidPassword = await bcrypt.compare(password, user.password);
 
   return isValidPassword;
+};
+userSchema.methods.getSafeUser = async function () {
+  const user = this;
+
+  const parsedUser = pickFields(user.toObject());
+  return parsedUser;
 };
 const User = mongoose.model("User", userSchema);
 

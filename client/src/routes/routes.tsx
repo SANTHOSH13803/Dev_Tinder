@@ -1,4 +1,6 @@
+import React from "react";
 import Layout from "../components/Layout";
+const Feed = React.lazy(() => import("../pages/Feed"));
 import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
 import Signup from "../pages/SignUp";
@@ -19,7 +21,13 @@ const routes = [
       {
         path: "/",
         element: <Layout />,
-        index: true
+        // index: true,
+        children: [
+          {
+            element: <Feed />,
+            index: true
+          }
+        ]
       }
     ]
   },

@@ -3,6 +3,7 @@ const userAuth = require("../middlewares/userAuth");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const { successResponse, errorResponse } = require("../config/messages");
+const { USER_ALLOWED_FIELDS } = require("../utils/fields");
 const profileRouter = express.Router();
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
@@ -11,6 +12,7 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
     if (!user) {
       throw new Error("User Not found");
     }
+    const parsedUser = user.getSafeUser();
 
     return successResponse({ res, data: user, message: "User Found" });
   } catch (error) {

@@ -4,6 +4,7 @@ interface User {
   _id: string;
   firstName: string;
   email: string;
+  photoURL : string
 }
 
 interface UserState {

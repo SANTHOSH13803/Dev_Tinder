@@ -29,7 +29,7 @@ export default function Signup() {
     });
 
     if (response.data) {
-      navigte("/");
+      navigte("/login");
       return;
     }
 

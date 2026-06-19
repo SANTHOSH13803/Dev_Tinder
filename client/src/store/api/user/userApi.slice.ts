@@ -27,8 +27,20 @@ const userApiSlice = commonApiSlice.injectEndpoints({
             url : '/profile/view',
         })
     }),
+    getFeed: builder.query<any, {params : any}>({
+        query : ({params}) =>({
+            url : '/user/feed',
+            params
+        })
+    }),
+    sendRequest: builder.mutation<any, {data : {status : string, requestId : string}}>({
+        query : ({data}) =>({
+            url :   `request/send/${data.status}/${data.requestId}`,
+            method : 'POST'
+        })
+    }),
    }),
 }
 )
 
-export const {useLoginUserMutation,useSignUpMutation, useLogoutMutation, useGetUserQuery}  = userApiSlice;
+export const {useLoginUserMutation,useSignUpMutation, useLogoutMutation, useGetUserQuery,useGetFeedQuery,useSendRequestMutation}  = userApiSlice;

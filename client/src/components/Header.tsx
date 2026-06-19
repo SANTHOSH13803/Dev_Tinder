@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "../store/api/user/userApi.slice";
 import { toast } from "react-toastify";
 import { removeUser } from "../store/slice/user";
-import { useAppDispatch } from "../store/hook";
+import { useAppDispatch, useAppSelector } from "../store/hook";
 
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.user);
   const [logoutApi] = useLogoutMutation();
   const handleLogout = async () => {
     const response = await logoutApi();
@@ -32,7 +33,10 @@ const Header = () => {
             <div className="w-10 rounded-full">
               <img
                 alt="Tailwind CSS Navbar component"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                src={
+                  user?.photoURL ??
+                  "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                }
               />
             </div>
           </div>

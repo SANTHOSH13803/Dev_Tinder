@@ -54,7 +54,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 userRouter.get("/user/feed", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
-    const page = req.query?.page || 10;
+    const page = req.query?.page || 1;
     const limit = req.query?.limit || 10;
     const skip = (page - 1) * limit;
     const connectionRequest = await ConnectionRequestModel.find({
@@ -67,7 +67,7 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
         }
       ]
     }).select({ fromUserId: 1, toUserId: 1 });
-
+    console.log(connectionRequest, "TEST");
     const hideFromFeedIds = new Set();
 
     connectionRequest.forEach((each) => {
@@ -84,7 +84,6 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
       .select(USER_ALLOWED_FIELDS)
       .skip(skip)
       .limit(limit);
-
     res.json({ data: data });
   } catch (error) {
     res.send("Error : " + error.message);
