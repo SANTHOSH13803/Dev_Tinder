@@ -29,6 +29,7 @@ type CardProps = {
   cards: CardsType[];
   photoURL: string;
   setCards: React.Dispatch<React.SetStateAction<CardsType[]>>;
+  fromProfile?: boolean;
 };
 const Feed = () => {
   const [page, setPage] = useState(1);
@@ -56,14 +57,15 @@ const Feed = () => {
   );
 };
 
-const Card = ({
+export const Card = ({
   _id,
   photoURL,
   setCards,
   cards,
   firstName,
   age,
-  skills
+  skills,
+  fromProfile = false
 }: CardProps) => {
   const x = useMotionValue(0);
   const dragControls = useDragControls();
@@ -79,7 +81,7 @@ const Card = ({
   });
   const sendRequest = async (type: "interested" | "ignored") => {
     try {
-      await sendRequestApi({ data: { status: type, requestId: _id } });
+      await sendRequestApi({ status: type, requestId: _id });
     } catch (error) {
       toast.error("Something Went wrong");
     }
@@ -116,7 +118,7 @@ const Card = ({
     <motion.div
       draggable={false}
       onPointerDown={handlePointerDown}
-      className="relative h-190 w-130 overflow-visible rounded-3xl bg-cover bg-center"
+      className={`${fromProfile ? "h-150 w-150" : " h-190 w-130"} relative overflow-visible rounded-3xl bg-cover bg-center`}
       style={{
         backgroundImage: `url(${photoURL})`,
         gridRow: 1,

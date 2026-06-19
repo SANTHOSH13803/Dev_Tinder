@@ -28,7 +28,8 @@ export default function Login() {
       const data = await loginApi({
         body: values
       }).unwrap();
-      dispatch(addUser(data));
+      console.log(data.data, "LOGIN");
+      dispatch(addUser(data.data));
       navigate("/");
     } catch (error: any) {
       toast.error(error?.data?.error || "Something went wrong");

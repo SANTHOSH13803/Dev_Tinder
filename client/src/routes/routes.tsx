@@ -5,6 +5,7 @@ import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
 import Signup from "../pages/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
+import Profile from "../pages/Profile";
 
 const routes = [
   {
@@ -26,6 +27,10 @@ const routes = [
           {
             element: <Feed />,
             index: true
+          },
+          {
+            path: "/profile",
+            element: <Profile />
           }
         ]
       }

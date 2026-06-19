@@ -8,6 +8,7 @@ import { addUser } from "../store/slice/user";
 const Layout = () => {
   const { data: userData } = useGetUserQuery();
   const dispatch = useAppDispatch();
+  console.log(userData?.data, "USER DATA");
   useEffect(() => {
     if (userData?.data) {
       dispatch(addUser(userData?.data));
@@ -16,7 +17,7 @@ const Layout = () => {
   return (
     <div className="flex h-screen flex-col">
       <Header />
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1">
         <Outlet />
       </main>
     </div>
