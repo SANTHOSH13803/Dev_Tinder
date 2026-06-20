@@ -118,7 +118,7 @@ export const Card = ({
     <motion.div
       draggable={false}
       onPointerDown={handlePointerDown}
-      className={`${fromProfile ? "h-150 w-150" : " h-190 w-130"} relative overflow-visible rounded-3xl bg-cover bg-center`}
+      className={`${fromProfile ? "w-[50vw] h-[80vh]" : " h-[80vh] w-[80vw] md:w-[40vw] lg:w-[30vw]"} relative overflow-visible rounded-3xl bg-cover bg-center`}
       style={{
         backgroundImage: `url(${photoURL})`,
         gridRow: 1,

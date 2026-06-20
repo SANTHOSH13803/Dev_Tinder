@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useAppSelector } from "../store/hook";
 import type { User } from "../store/slice/user";
 import { useUpdateProfileMutation } from "../store/api/user/userApi.slice";
+import { Chips, type ChipsChangeEvent } from "primereact/chips";
 
 type ProfileFormValues = {
   firstName: string;
@@ -85,11 +86,10 @@ const Profile = () => {
   }, [userData]);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-7xl items-start justify-center gap-12 p-8">
-      <div className="sticky top-8">
-        <Card fromProfile={true} cards={[user]} setCards={() => {}} {...user} />
-      </div>
-      <div className="w-full max-w-xl rounded-3xl bg-gray-700  p-8 shadow-xl">
+    <div className="mx-auto flex md:h-full h-[calc(100vh-64px)] max-w-7xl gap-8 p-6 flex-col md:flex-row md:justify-center md:items-center">
+      {" "}
+      <div className="w-full md:w-1/2 h-fit rounded-3xl bg-gray-700 p-8 shadow-xl">
+        {" "}
         {isEdit && (
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-stale-100 ">Edit Profile</h1>
@@ -99,7 +99,6 @@ const Profile = () => {
             </p>
           </div>
         )}
-
         {/* Formik here */}
         <Formik
           initialValues={initialValues}
@@ -109,7 +108,7 @@ const Profile = () => {
         >
           {({ isSubmitting }) => (
             <Form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* First Name */}
                 <div>
                   <label className={labelClass}>First Name</label>
@@ -142,7 +141,7 @@ const Profile = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-4">
                 {/* Age */}
                 <div>
                   <label className={labelClass}>Age</label>
@@ -218,22 +217,22 @@ const Profile = () => {
                 <label className={labelClass}>Skills (comma separated)</label>
 
                 <Field name="skills">
-                  {({ field, form }: any) => (
-                    <input
-                      className={inputClass}
-                      value={field.value.join(", ")}
-                      disabled={!isEdit}
-                      onChange={(e) =>
-                        form.setFieldValue(
-                          "skills",
-                          e.target.value
-                            .split(",")
-                            .map((skill: string) => skill.trim())
-                            .filter(Boolean)
-                        )
-                      }
-                    />
-                  )}
+                  {({ field, form }: any) => {
+                    return (
+                      <input
+                        className={inputClass}
+                        value={field.value}
+                        disabled={!isEdit}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          form.setFieldValue("skills", e.target.value);
+                          setUser((prv) => ({
+                            ...prv,
+                            skills: e.target.value.split(",")
+                          }));
+                        }}
+                      />
+                    );
+                  }}
                 </Field>
               </div>
               {isEdit ? (
