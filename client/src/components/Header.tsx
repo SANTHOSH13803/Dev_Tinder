@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { removeUser } from "../store/slice/user";
 import { useAppDispatch, useAppSelector } from "../store/hook";
 import commonApiSlice from "../store/api/main/user.api";
+import { ModeToggle } from "@/utils/ThemeToogle";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -22,14 +23,18 @@ const Header = () => {
     }
     toast.error("Something went wrong");
   };
+
   return (
-    <div className="navbar bg-base-300 shadow-sm">
+    <div className="navbar dark:bg-base-300 bg- shadow-sm">
       <div className="flex-1">
-        <Link className="btn btn-ghost text-xl" to="/">
+        <Link
+          className="scroll-m-20 text-2xl font-semibold tracking-tight ml-2 dark:text-white"
+          to="/"
+        >
           DevTinder
         </Link>
       </div>
-      <div className="flex gap-2">
+      <div className="flex  justify-center items-center gap-2">
         <div className="dropdown dropdown-end mx-5">
           <div
             tabIndex={0}
@@ -66,6 +71,7 @@ const Header = () => {
             </li>
           </ul>
         </div>
+        <ModeToggle />
       </div>
     </div>
   );

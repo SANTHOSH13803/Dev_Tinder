@@ -1,12 +1,31 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { Card } from "./Feed";
 import React, { useEffect, useState } from "react";
 import { useAppSelector } from "../store/hook";
 import type { User } from "../store/slice/user";
 import { useUpdateProfileMutation } from "../store/api/user/userApi.slice";
-import { Chips, type ChipsChangeEvent } from "primereact/chips";
-
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+import { Chips } from "primereact/chips";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { FieldGroup, FieldLabel } from "@/components/ui/field";
 type ProfileFormValues = {
   firstName: string;
   lastName: string;
@@ -88,7 +107,7 @@ const Profile = () => {
   return (
     <div className="mx-auto flex md:h-full h-[calc(100vh-64px)] max-w-7xl gap-8 p-6 flex-col md:flex-row md:justify-center md:items-center">
       {" "}
-      <div className="w-full md:w-1/2 h-fit rounded-3xl bg-gray-700 p-8 shadow-xl">
+      <div className="w-full md:max-w-1/2  h-fit rounded-3xl bg-gray-700 p-8 shadow-xl">
         {" "}
         {isEdit && (
           <div className="mb-8">
@@ -262,7 +281,209 @@ const Profile = () => {
         </Formik>
       </div>
     </div>
+    // <div className="mx-auto h-full flex   md:flex-row md:justify-center md:items-center">
+    //   <CardDemo />
+    // </div>
+    // <Formik
+    //   initialValues={initialValues}
+    //   validationSchema={validationSchema}
+    //   enableReinitialize
+    //   onSubmit={handleSubmit}
+    // >
+    //   {({ values, handleChange, isSubmitting, setFieldValue }) => (
+    //     <Form className="w-full h-full m-10 p-6 flex justify-center items-center">
+    //       {" "}
+    //       <Card className="w-full max-w-4xl overflow-auto bg-gray-700 border-none">
+    //         <CardContent className="space-y-6 pt-6">
+    //           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //             <div className="grid gap-2">
+    //               <Label htmlFor="firstName">First Name</Label>
+    //               <Input
+    //                 id="firstName"
+    //                 name="firstName"
+    //                 value={values.firstName}
+    //                 onChange={handleChange}
+    //                 disabled={!isEdit}
+    //               />
+    //               <ErrorMessage
+    //                 name="firstName"
+    //                 component="p"
+    //                 className="text-red-500 text-sm"
+    //               />
+    //             </div>
+
+    //             <div className="grid gap-2">
+    //               <Label htmlFor="lastName">Last Name</Label>
+    //               <Input
+    //                 id="lastName"
+    //                 name="lastName"
+    //                 value={values.lastName}
+    //                 onChange={handleChange}
+    //                 disabled={!isEdit}
+    //               />
+    //               <ErrorMessage
+    //                 name="lastName"
+    //                 component="p"
+    //                 className="text-red-500 text-sm"
+    //               />
+    //             </div>
+    //           </div>
+
+    //           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //             <div className="grid gap-2">
+    //               <Label htmlFor="age">Age</Label>
+    //               <Input
+    //                 id="age"
+    //                 name="age"
+    //                 type="number"
+    //                 value={values.age}
+    //                 onChange={handleChange}
+    //                 disabled={!isEdit}
+    //               />
+    //             </div>
+
+    //             <div className="grid gap-2">
+    //               <Label htmlFor="gender">Gender</Label>
+
+    //               <Select
+    //                 value={values.gender}
+    //                 disabled={!isEdit}
+    //                 onValueChange={(value) => setFieldValue("gender", value)}
+    //               >
+    //                 <SelectTrigger>
+    //                   <SelectValue placeholder="Select Gender" />
+    //                 </SelectTrigger>
+
+    //                 <SelectContent>
+    //                   <SelectItem value="male">Male</SelectItem>
+    //                   <SelectItem value="female">Female</SelectItem>
+    //                 </SelectContent>
+    //               </Select>
+    //             </div>
+    //           </div>
+
+    //           <div className="grid gap-2">
+    //             <Label htmlFor="photoURL">Photo URL</Label>
+
+    //             <Input
+    //               id="photoURL"
+    //               name="photoURL"
+    //               value={values.photoURL}
+    //               onChange={handleChange}
+    //               disabled={!isEdit}
+    //             />
+    //           </div>
+
+    //           <div className="grid gap-2">
+    //             <Label htmlFor="about">About</Label>
+
+    //             <Textarea
+    //               id="about"
+    //               name="about"
+    //               value={values.about}
+    //               onChange={handleChange}
+    //               disabled={!isEdit}
+    //               rows={4}
+    //             />
+    //           </div>
+
+    //           <div className="grid gap-2">
+    //             <Label>Skills</Label>
+
+    //             <Chips
+    //               value={values.skills}
+    //               disabled={!isEdit}
+    //               onChange={(e) => setFieldValue("skills", e.value)}
+    //             />
+    //           </div>
+    //         </CardContent>
+    //         <CardFooter>
+    //           {isEdit ? (
+    //             <Button
+    //               type="submit"
+    //               className="w-full"
+    //               disabled={isSubmitting}
+    //             >
+    //               Save Profile
+    //             </Button>
+    //           ) : (
+    //             <Button
+    //               type="button"
+    //               className="w-full"
+    //               onClick={() => setIsEdit(true)}
+    //             >
+    //               Edit Profile
+    //             </Button>
+    //           )}
+    //         </CardFooter>
+    //       </Card>
+    //     </Form>
+    //   )}
+    // </Formik>
   );
 };
 
 export default Profile;
+
+export function CardDemo() {
+  return (
+    <Card className="w-full max-w-sm">
+      {/* <CardHeader>
+        <CardTitle>Login to your account</CardTitle>
+        <CardDescription>
+          Enter your email below to login to your account
+        </CardDescription>
+        <CardAction>
+          <Button variant="link">Sign Up</Button>
+        </CardAction>
+      </CardHeader> */}
+      <CardContent>
+        <form>
+          <div className="flex flex-col gap-6">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <a
+                  href="#"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </a>
+              </div>
+              <Input id="password" type="password" required />
+            </div>
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter className="flex-col gap-2">
+        <Button type="submit" className="w-full">
+          Login
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+export function InputGrid() {
+  return (
+    <FieldGroup className="grid max-w-sm grid-cols-2">
+      <Field>
+        <FieldLabel htmlFor="first-name">First Name</FieldLabel>
+        <Input id="first-name" placeholder="Jordan" />
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="last-name">Last Name</FieldLabel>
+        <Input id="last-name" placeholder="Lee" />
+      </Field>
+    </FieldGroup>
+  );
+}
