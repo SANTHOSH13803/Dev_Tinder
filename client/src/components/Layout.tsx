@@ -8,7 +8,6 @@ import { addUser } from "../store/slice/user";
 const Layout = () => {
   const { data: userData } = useGetUserQuery();
   const dispatch = useAppDispatch();
-  console.log(userData?.data, "USER DATA");
   useEffect(() => {
     if (userData?.data) {
       dispatch(addUser(userData?.data));
@@ -17,7 +16,7 @@ const Layout = () => {
   return (
     <div className="flex h-screen flex-col">
       <Header />
-      <main className="flex-1 overflow-scroll">
+      <main className="flex-1 overflow-y-scroll min-h-0">
         <Outlet />
       </main>
     </div>

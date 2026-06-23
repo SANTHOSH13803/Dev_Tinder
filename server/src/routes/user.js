@@ -3,6 +3,8 @@ const userAuth = require("../middlewares/userAuth");
 const ConnectionRequestModel = require("../models/connectionRequest");
 const User = require("../models/user");
 const { USER_ALLOWED_FIELDS } = require("../utils/fields");
+const { toUserDto } = require("../utils/user");
+const { errorResponse, successResponse } = require("../config/messages");
 
 const userRouter = express.Router();
 
@@ -10,14 +12,18 @@ userRouter.get("/user/request/pending", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
 
-    const pendingConnectionRequests = await ConnectionRequestModel.find({
+    let pendingConnectionRequests = await ConnectionRequestModel.find({
       toUserId: loggedInUser._id,
       status: "interested"
-    }).populate("fromUserId", "firstName lastName age skills photoUrl");
+    }).populate("fromUserId", USER_ALLOWED_FIELDS);
 
-    res.status(200).json({ data: pendingConnectionRequests, success: true });
+    pendingConnectionRequests = pendingConnectionRequests.map((each) => ({
+      requestId: each._id,
+      ...toUserDto(each.fromUserId)
+    }));
+    return successResponse({ res, data: pendingConnectionRequests });
   } catch (error) {
-    res.status(400).send(`Error : Something Went wrong - ${error.message}`);
+    return errorResponse({ res, error: error.message, statusCode: 400 });
   }
 });
 

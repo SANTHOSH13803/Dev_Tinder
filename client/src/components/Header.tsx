@@ -25,7 +25,7 @@ const Header = () => {
   };
 
   return (
-    <div className="navbar dark:bg-base-300 bg- shadow-sm">
+    <div className="navbar dark:bg-base-300  shadow-sm">
       <div className="flex-1">
         <Link
           className="scroll-m-20 text-2xl font-semibold tracking-tight ml-2 dark:text-white"
@@ -58,11 +58,12 @@ const Header = () => {
             <li>
               <Link className="justify-between" to={"/profile"}>
                 Profile
-                <span className="badge">New</span>
               </Link>
             </li>
             <li>
-              <a>Settings</a>
+              <Link className="justify-between" to={"/connections"}>
+                Connection Requests
+              </Link>{" "}
             </li>
             <li>
               <button type="button" onClick={handleLogout}>

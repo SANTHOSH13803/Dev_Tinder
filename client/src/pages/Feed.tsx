@@ -170,14 +170,14 @@ export const Card = ({
         <div className="flex items-center gap-8 justify-center mt-4">
           <button
             className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg transition hover:scale-105"
-            onClick={acceptRequest}
+            onClick={rejectRequest}
           >
             <IoClose className="text-4xl text-pink-500" />
           </button>
 
           <button
             className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg transition hover:scale-105"
-            onClick={rejectRequest}
+            onClick={acceptRequest}
           >
             <IoHeart className="text-4xl text-green-500" />
           </button>

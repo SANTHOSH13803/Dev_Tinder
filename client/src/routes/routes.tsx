@@ -6,6 +6,7 @@ import NotFound from "../pages/NotFound";
 import Signup from "../pages/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
 import Profile from "../pages/Profile";
+import Connections from "@/pages/Connections";
 
 const routes = [
   {
@@ -31,6 +32,10 @@ const routes = [
           {
             path: "/profile",
             element: <Profile />
+          },
+          {
+            path: "/connections",
+            element: <Connections />
           }
         ]
       }

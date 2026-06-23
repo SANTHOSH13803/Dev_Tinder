@@ -7,7 +7,7 @@ const baseQuery = fetchBaseQuery({
 
 const commonApiSlice = createApi({
   reducerPath: "commonApi",
-  tagTypes: ["User"],
+  tagTypes: ["User", "Connections"],
   baseQuery: baseQuery,
   endpoints: () => ({})
 });

@@ -51,6 +51,19 @@ const userApiSlice = commonApiSlice.injectEndpoints({
         body: data
       }),
       invalidatesTags: ["User"]
+    }),
+    getPendingConnections: builder.query<any, void>({
+      query: () => ({
+        url: `user/request/pending`
+      }),
+      providesTags: ["Connections"]
+    }),
+    reviewConnections: builder.mutation<any, SendRequestPayload>({
+      query: ({ status, requestId }) => ({
+        url: `request/review/${status}/${requestId}`,
+        method: "POST"
+      }),
+      invalidatesTags: ["Connections"]
     })
   })
 });
@@ -62,5 +75,8 @@ export const {
   useGetUserQuery,
   useGetFeedQuery,
   useSendRequestMutation,
-  useUpdateProfileMutation
+  useUpdateProfileMutation,
+  useGetPendingConnectionsQuery,
+  useLazyGetPendingConnectionsQuery,
+  useReviewConnectionsMutation
 } = userApiSlice;
