@@ -5,8 +5,9 @@ import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
 import Signup from "../pages/SignUp";
 import ProtectedRoute from "./ProtectedRoute";
-import Profile from "../pages/Profile";
 import Connections from "@/pages/Connections";
+import ProfileView from "@/pages/ProfileView";
+import ProfileEdit from "@/pages/ProfileEdit";
 
 const routes = [
   {
@@ -31,7 +32,11 @@ const routes = [
           },
           {
             path: "/profile",
-            element: <Profile />
+            element: <ProfileView />
+          },
+          {
+            path: "/profile/edit",
+            element: <ProfileEdit />
           },
           {
             path: "/connections",

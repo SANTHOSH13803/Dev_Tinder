@@ -4,7 +4,10 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const { successResponse, errorResponse } = require("../config/messages");
 const { USER_ALLOWED_FIELDS } = require("../utils/fields");
+const upload = require("../config/multer");
 const profileRouter = express.Router();
+const cloudinary = require("../config/cloudinary");
+const fs = require("fs");
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
@@ -20,27 +23,42 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
   }
 });
 
-profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    const data = req.body;
-    // This is basic validation you can write custom validation function
-    // write validation for each field based on your case
-    const isValidUpdate = Object.keys(data).some((key) =>
-      ["emailId", "password"].includes(key)
-    );
-    if (isValidUpdate) {
-      throw new Error("Invalid Edit Request");
-    }
-    const updateUser = await User.findOneAndUpdate({ _id: user._id }, data, {
-      returnDocument: "after"
-    });
+profileRouter.patch(
+  "/profile/edit",
+  userAuth,
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      const user = req.user;
+      const data = req.body;
+      // This is basic validation you can write custom validation function
+      // write validation for each field based on your case
+      const isValidUpdate = Object.keys(data).some((key) =>
+        ["emailId", "password"].includes(key)
+      );
+      if (isValidUpdate) {
+        throw new Error("Invalid Edit Request");
+      }
 
-    res.send(updateUser);
-  } catch (error) {
-    res.status(400).send("Error: " + error.message);
+      if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          folder: "devtinder-profile"
+        });
+
+        data.photoURL = result.secure_url;
+      }
+
+      const updateUser = await User.findOneAndUpdate({ _id: user._id }, data, {
+        returnDocument: "after"
+      });
+
+      res.send(updateUser);
+    } catch (error) {
+      console.log(error);
+      res.status(400).send("Error: " + error.message);
+    }
   }
-});
+);
 profileRouter.patch("/profile/password", async (req, res) => {
   try {
     const { password, emailId } = req.body;
