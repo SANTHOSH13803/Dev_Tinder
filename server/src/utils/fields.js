@@ -5,4 +5,7 @@ const pickFields = (obj, fields = USER_ALLOWED_FIELDS) => {
     Object.entries(obj).filter(([key]) => fields.includes(key))
   );
 };
-module.exports = { USER_ALLOWED_FIELDS, pickFields };
+
+const PHOTO_ALLOWED_FILEDS = "userId url createdAt _id";
+
+module.exports = { USER_ALLOWED_FIELDS, pickFields, PHOTO_ALLOWED_FILEDS };
