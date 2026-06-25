@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
+  useLazyGetFeedQuery,
+  useSendRequestMutation
+} from "../store/api/user/userApi.slice";
+import {
   motion,
   useDragControls,
   useMotionValue,
   useTransform
 } from "framer-motion";
-import {
-  useGetFeedQuery,
-  useSendRequestMutation
-} from "../store/api/user/userApi.slice";
 import { IoClose, IoHeart } from "react-icons/io5";
 import { toast } from "react-toastify";
 
@@ -20,97 +20,162 @@ type CardsType = {
   skills: string[];
   photoURL: string;
 };
-type CardProps = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  age: number;
-  skills: string[];
-  cards: CardsType[];
-  photoURL: string;
-  setCards: React.Dispatch<React.SetStateAction<CardsType[]>>;
-  fromProfile?: boolean;
-};
+
 const Feed = () => {
+  const [cards, setCards] = useState<CardsType[]>([]);
   const [page, setPage] = useState(1);
-  const { data: cardData } = useGetFeedQuery({
-    params: { page: page, limit: 10 }
-  });
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
 
-  const [cards, setCards] = useState<CardsType[] | []>([]);
-  useEffect(() => {
-    const _cards = cardData?.data;
-    if (_cards?.length) {
-      setCards(_cards);
+  const [getFeedApi] = useLazyGetFeedQuery();
+
+  const fetchFeed = async (pageNumber: number) => {
+    try {
+      setIsFetchingNextPage(true);
+
+      const response = await getFeedApi({
+        params: {
+          page: pageNumber,
+          limit: 10
+        }
+      }).unwrap();
+
+      const newCards = response?.data ?? [];
+
+      if (newCards.length < 10) {
+        setHasMore(false);
+      }
+
+      setCards((prev) => [...newCards, ...prev]);
+    } catch (error) {
+      toast.error("Failed to load feed");
+    } finally {
+      setIsFetchingNextPage(false);
     }
-  }, [cardData]);
+  };
 
-  useEffect(() => {}, [cards]);
+  useEffect(() => {
+    fetchFeed(1);
+  }, []);
+
+  useEffect(() => {
+    if (page === 1) return;
+
+    fetchFeed(page);
+  }, [page]);
+
+  const loadNextPage = () => {
+    if (!hasMore || isFetchingNextPage) return;
+
+    setPage((prev) => prev + 1);
+  };
+
+  const showEmpty = cards.length === 0 && !hasMore && !isFetchingNextPage;
+
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6">
       <div className="grid">
         {cards.map((card) => (
-          <Card key={card._id} cards={cards} setCards={setCards} {...card} />
+          <Card
+            key={card._id}
+            cards={cards}
+            setCards={setCards}
+            loadNextPage={loadNextPage}
+            hasMore={hasMore}
+            {...card}
+          />
         ))}
       </div>
+
+      {showEmpty && (
+        <div className="text-center text-xl font-semibold">
+          No More Connections Found
+        </div>
+      )}
     </div>
   );
 };
 
-export const Card = ({
+type CardProps = CardsType & {
+  cards: CardsType[];
+  setCards: React.Dispatch<React.SetStateAction<CardsType[]>>;
+  loadNextPage: () => void;
+  hasMore: boolean;
+};
+
+const Card = ({
   _id,
   photoURL,
-  setCards,
-  cards,
   firstName,
   age,
   skills,
-  fromProfile = false
+  cards,
+  setCards,
+  loadNextPage,
+  hasMore
 }: CardProps) => {
   const x = useMotionValue(0);
   const dragControls = useDragControls();
+
   const [sendRequestApi] = useSendRequestMutation();
 
   const rotateRaw = useTransform(x, [-300, 300], [-20, 20]);
   const opacity = useTransform(x, [-150, 0, 150], [0, 1, 0]);
 
-  const isFront = _id === cards[cards.length - 1]._id;
+  const isFront = cards.length > 0 && _id === cards[cards.length - 1]._id;
 
   const rotate = useTransform(() => {
     return `${rotateRaw.get()}deg`;
   });
-  const sendRequest = async (type: "interested" | "ignored") => {
+
+  const sendRequest = async (status: "interested" | "ignored") => {
     try {
-      await sendRequestApi({ status: type, requestId: _id });
-    } catch (error) {
-      toast.error("Something Went wrong");
+      await sendRequestApi({
+        status,
+        requestId: _id
+      }).unwrap();
+    } catch {
+      toast.error("Something went wrong");
     }
   };
 
   const removeCard = () => {
-    setCards((pv) => pv.filter((v) => v._id !== _id));
+    setCards((prev) => {
+      const updatedCards = prev.filter((card) => card._id !== _id);
+
+      if (updatedCards.length === 2 && hasMore) {
+        loadNextPage();
+      }
+
+      return updatedCards;
+    });
   };
 
-  const acceptRequest = () => {
-    sendRequest("interested");
+  const acceptRequest = async () => {
+    await sendRequest("interested");
     removeCard();
   };
-  const rejectRequest = () => {
-    sendRequest("ignored");
+
+  const rejectRequest = async () => {
+    await sendRequest("ignored");
     removeCard();
   };
+
   const handleDragEnd = () => {
     if (x.get() > 100) {
       acceptRequest();
     }
+
     if (x.get() < -100) {
       rejectRequest();
     }
   };
 
-  const handlePointerDown = (event: any) => {
+  const handlePointerDown = (event: React.PointerEvent) => {
     if (isFront) {
-      dragControls.start(event, { distanceThreshold: 0 });
+      dragControls.start(event, {
+        distanceThreshold: 0
+      });
     }
   };
 
@@ -118,7 +183,7 @@ export const Card = ({
     <motion.div
       draggable={false}
       onPointerDown={handlePointerDown}
-      className={`${fromProfile ? "w-[50vw] h-[80vh]" : " h-[80vh] w-[80vw] md:w-[40vw] lg:w-[30vw]"} relative overflow-visible rounded-3xl bg-cover bg-center`}
+      className="relative h-[80vh] w-[80vw] overflow-visible rounded-3xl bg-cover bg-center md:w-[40vw] lg:w-[30vw]"
       style={{
         backgroundImage: `url(${photoURL})`,
         gridRow: 1,
@@ -127,10 +192,7 @@ export const Card = ({
         pointerEvents: isFront ? "auto" : "none",
         x,
         opacity,
-        rotate,
-        boxShadow: isFront
-          ? "0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)"
-          : undefined
+        rotate
       }}
       animate={{
         scale: isFront ? 1 : 0.95,
@@ -143,14 +205,11 @@ export const Card = ({
       dragSnapToOrigin
       onDragEnd={handleDragEnd}
     >
-      {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-linear-to-t from-black via-black/30 to-transparent" />
 
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-6 text-white">
+      <div className="absolute right-0 bottom-0 left-0 z-10 p-6 text-white">
         <div className="flex items-end gap-3">
           <h2 className="text-4xl font-bold">{firstName}</h2>
-
           <span className="mb-1 text-sm font-light">{age}</span>
         </div>
 
@@ -166,17 +225,17 @@ export const Card = ({
             ))}
           </div>
         )}
-        {/* Action Buttons */}
-        <div className="flex items-center gap-8 justify-center mt-4">
+
+        <div className="mt-4 flex justify-center gap-8">
           <button
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg transition hover:scale-105"
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg"
             onClick={rejectRequest}
           >
             <IoClose className="text-4xl text-pink-500" />
           </button>
 
           <button
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg transition hover:scale-105"
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg"
             onClick={acceptRequest}
           >
             <IoHeart className="text-4xl text-green-500" />

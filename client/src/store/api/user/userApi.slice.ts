@@ -74,6 +74,7 @@ export const {
   useLogoutMutation,
   useGetUserQuery,
   useGetFeedQuery,
+  useLazyGetFeedQuery,
   useSendRequestMutation,
   useUpdateProfileMutation,
   useGetPendingConnectionsQuery,

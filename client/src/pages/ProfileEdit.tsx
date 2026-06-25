@@ -16,7 +16,14 @@ import { Textarea } from "@/components/ui/textarea";
 import ProfilePicAvatar from "@/components/ProfilePicAvatar";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
 import { toast } from "react-toastify";
-
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 type ProfileFormValues = {
   firstName: string;
   lastName: string;
@@ -145,6 +152,12 @@ const ProfileEdit = () => {
     setFile(null);
     setOpen(false);
   };
+
+  const items = [
+    { label: "Male", value: "male" },
+    { label: "Female", value: "female" },
+    { label: "Others", value: "others" }
+  ];
   return (
     <>
       <LoadingOverlay text="Saving Profile" open={isSaving} />
@@ -155,7 +168,7 @@ const ProfileEdit = () => {
         onSubmit={handleSubmit}
       >
         {({ values, handleChange, isSubmitting, setFieldValue }) => (
-          <Form className="space-y-4 m-5 sm:max-w-125 sm:mx-auto">
+          <Form className="space-y-4 m-5 sm:max-w-125 sm:mx-auto ">
             <Card>
               <CardContent className="space-y-8 pt-6">
                 <h1 className="text-3xl font-bold">Edit Profile</h1>
@@ -295,13 +308,28 @@ const ProfileEdit = () => {
 
                   <div className="grid gap-2">
                     <Label htmlFor="gender">Gender</Label>
-
-                    <Input
-                      id="gender"
+                    <Select
                       name="gender"
                       value={values.gender}
-                      onChange={handleChange}
-                    />
+                      onValueChange={(value) => {
+                        if (value) {
+                          setFieldValue("gender", value);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {items.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>
+                              {item.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </CardContent>
