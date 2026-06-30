@@ -160,7 +160,7 @@ const ProfileEdit = () => {
   ];
   return (
     <>
-      <LoadingOverlay text="Saving Profile" open={isSaving} />
+      {isSaving && <LoadingOverlay text="Saving Profile" open={isSaving} />}
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
@@ -168,10 +168,10 @@ const ProfileEdit = () => {
         onSubmit={handleSubmit}
       >
         {({ values, handleChange, isSubmitting, setFieldValue }) => (
-          <Form className="space-y-4 m-5 sm:max-w-125 sm:mx-auto ">
+          <Form className="mx-auto max-w-2xl space-y-4 p-5">
             <Card>
               <CardContent className="space-y-8 pt-6">
-                <h1 className="text-3xl font-bold">Edit Profile</h1>
+                <h1 className="text-2xl font-bold">Edit Profile</h1>
 
                 {/* Profile Header */}
 

@@ -14,7 +14,6 @@ photoRouter.post(
     try {
       const { _id: userId } = req.user;
       const file = req.file;
-      console.log(file, "FILE");
       if (!file) {
         return errorResponse({
           res,
@@ -26,11 +25,18 @@ photoRouter.post(
         folder: "devtinder-profile"
       });
       if (!cloudRes) {
-        errorResponse({ res, message: "Unable to upload" });
+        errorResponse({ res, message: "Unable to upload", success: true });
       }
+      const optimizedUrl = cloudinary.url(cloudRes.public_id, {
+        width: 400,
+        height: 500,
+        crop: "fill",
+        quality: "auto",
+        fetch_format: "auto"
+      });
       const newPhoto = await PhotoModel.create({
         userId,
-        url: cloudRes.url,
+        url: optimizedUrl,
         publicId: cloudRes.public_id
       });
 

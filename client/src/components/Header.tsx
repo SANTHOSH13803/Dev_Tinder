@@ -24,6 +24,9 @@ const Header = () => {
     toast.error("Something went wrong");
   };
 
+  const closeDropdown = () => {
+    (document.activeElement as HTMLElement)?.blur();
+  };
   return (
     <div className="navbar dark:bg-base-300  shadow-sm">
       <div className="flex-1">
@@ -55,17 +58,17 @@ const Header = () => {
             tabIndex={0}
             className="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-52 p-2 shadow z-10"
           >
-            <li>
+            <li onClick={closeDropdown}>
               <Link className="justify-between" to={"/profile"}>
                 Profile
               </Link>
             </li>
-            <li>
+            <li onClick={closeDropdown}>
               <Link className="justify-between" to={"/connections"}>
                 Connection Requests
               </Link>{" "}
             </li>
-            <li>
+            <li onClick={closeDropdown}>
               <button type="button" onClick={handleLogout}>
                 Logout
               </button>

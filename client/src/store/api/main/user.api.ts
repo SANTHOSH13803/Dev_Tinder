@@ -30,7 +30,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 
 const commonApiSlice = createApi({
   reducerPath: "commonApi",
-  tagTypes: ["User", "Connections"],
+  tagTypes: ["User", "Connections", "Photo"],
   baseQuery: baseQueryWithErrorHandling,
   endpoints: () => ({})
 });
