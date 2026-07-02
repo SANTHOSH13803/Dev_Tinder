@@ -8,7 +8,10 @@
 @plugin "daisyui";
 html{
   height: 100%;
-  overflow-y:hidden ;
+  /* overflow-y:hidden ; */
+}
+.scroll-container {
+  overflow-y: scroll;
 }
 @theme inline {
     --font-heading: var(--font-sans);

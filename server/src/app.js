@@ -30,6 +30,7 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const photoRouter = require("./routes/photo");
+const { transporter } = require("./utils/sendEmail");
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
@@ -48,3 +49,11 @@ conectDatabase()
   .catch((err) => {
     console.log(err);
   });
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("Email server is ready");
+  }
+});

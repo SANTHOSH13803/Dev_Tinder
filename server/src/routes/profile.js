@@ -8,6 +8,8 @@ const upload = require("../config/multer");
 const profileRouter = express.Router();
 const cloudinary = require("../config/cloudinary");
 const fs = require("fs");
+const ConnectionRequestModel = require("../models/connectionRequest");
+const PasswordResetModel = require("../models/passwordReset");
 
 profileRouter.get("/profile/view", userAuth, async (req, res) => {
   try {
@@ -16,8 +18,16 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
       throw new Error("User Not found");
     }
     const parsedUser = user.getSafeUser();
+    const matches = await ConnectionRequestModel.countDocuments({
+      $or: [{ fromUserId: user._id }, { toUserId: user._id }],
+      status: "accepted"
+    });
 
-    return successResponse({ res, data: user, message: "User Found" });
+    return successResponse({
+      res,
+      data: { ...user.toObject(), matches },
+      message: "User Found"
+    });
   } catch (error) {
     return errorResponse({ res, error: error.message });
   }
@@ -61,27 +71,30 @@ profileRouter.patch(
 );
 profileRouter.patch("/profile/password", async (req, res) => {
   try {
-    const { password, emailId } = req.body;
-
-    // check if user Exsits
-    const user = await User.findOne({ emailId });
-    if (!user) {
-      throw new Error("User Not found! Register Now!!");
+    const { token, password } = req.body;
+    if (!token || !password) {
+      throw new Error("Invalid credentials");
     }
-    // Add a api layer for OPT verification(Haven't learnt at this point implement later)
+    const dbTokenCollection = await PasswordResetModel.findOne({ token });
+    if (!dbTokenCollection) {
+      throw new Error("Invalid Link");
+    }
+    if (new Date() > dbTokenCollection.expiresAt) {
+      throw new Error("Expired Link");
+    }
 
-    // hash the password
-    const hashPassword = await bcrypt.hash(password, 10);
-    // if user exist verify change password
-    const updatedUser = await User.findByIdAndUpdate(user._id, {
-      password: hashPassword
-    });
-    res.status(200).json({
-      data: "Password Updated successfully",
-      success: true
-    });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const dbUser = await User.findOneAndUpdate(
+      { _id: dbTokenCollection.userId },
+      {
+        password: hashedPassword
+      }
+    );
+    await dbTokenCollection.deleteOne();
+    return successResponse({ res, message: "Password Updated succesfully" });
   } catch (error) {
-    res.status(400).json({ error: "Something went wrong " + error.message });
+    return errorResponse({ res, error: error.message });
   }
 });
 module.exports = profileRouter;

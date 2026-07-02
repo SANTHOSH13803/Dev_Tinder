@@ -1,11 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { useLoginUserMutation } from "../store/api/user/userApi.slice";
+import { Formik, Form, type FormikProps, ErrorMessage } from "formik";
+import { useRef, useState } from "react";
+import * as yup from "yup";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "react-toastify";
-import { Formik, Form } from "formik";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addUser } from "../store/slice/user";
-
 interface LoginFormValues {
   emailId: string;
   password: string;
@@ -16,11 +25,15 @@ const initialValues: LoginFormValues = {
 };
 export default function Login() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const formRef = useRef<FormikProps<LoginFormValues>>(null);
   const handleNavigate = () => {
     navigate("/signUp");
   };
-  const [loginApi] = useLoginUserMutation();
+  const validationSchema = yup.object({
+    emailId: yup.string().required("Email is Required"),
+    password: yup.string().required("Password is required")
+  });
+  const [loginApi, { isLoading }] = useLoginUserMutation();
   const [tooglePassword, setTooglePassword] = useState(false);
 
   const handleLogin = async (values: LoginFormValues) => {
@@ -28,117 +41,139 @@ export default function Login() {
       const data = await loginApi({
         body: values
       }).unwrap();
-      console.log(data.data, "LOGIN");
-      dispatch(addUser(data.data));
+      toast.success(`Welcome back ${data.data.firstName}`);
       navigate("/");
     } catch (error: any) {
-      toast.error(error?.data?.error || "Something went wrong");
+      console.warn(error);
     }
   };
+  const handleForgetPassword = () => {
+    navigate("/forgot-password", {
+      state: { emailId: formRef.current?.values?.emailId ?? "" }
+    });
+  };
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
-          <p className="text-slate-400 mt-2">
-            Sign in to continue to DevTinder.
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+      <Card className="w-full max-w-md border-border/60 shadow-2xl">
+        <CardHeader className="space-y-2 text-center">
+          <CardTitle className="text-3xl font-bold tracking-tight">
+            Welcome Back
+          </CardTitle>
 
-        <Formik<LoginFormValues>
-          initialValues={initialValues}
-          onSubmit={handleLogin}
-        >
-          {({ values, handleChange, handleBlur }) => (
-            <Form className="space-y-5">
-              <div>
-                <label className="block text-sm text-slate-300 mb-2">
-                  Email
-                </label>
+          <CardDescription>Sign in to continue to DevTinder.</CardDescription>
+        </CardHeader>
 
-                <input
-                  name="emailId"
-                  type="email"
-                  value={values.emailId}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="john@example.com"
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+        <CardContent>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleLogin}
+            innerRef={formRef}
+          >
+            {({ values, handleChange, handleBlur, touched, errors }) => (
+              <Form className="space-y-6">
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="emailId">Email</Label>
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm text-slate-300">
-                    Password
-                  </label>
+                  <Input
+                    id="emailId"
+                    name="emailId"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={values.emailId}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className={
+                      touched.emailId && errors.emailId
+                        ? "border-destructive focus-visible:ring-destructive"
+                        : ""
+                    }
+                  />
 
-                  <button
-                    type="button"
-                    className="text-sm text-blue-500 hover:text-blue-400"
-                  >
-                    Forgot Password?
-                  </button>
+                  <ErrorMessage
+                    name="emailId"
+                    component="p"
+                    className="text-sm text-destructive"
+                  />
                 </div>
 
-                <input
-                  name="password"
-                  type={tooglePassword ? "text" : "password"}
-                  value={values.password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  type="button"
-                  className="text-sm text-gray-300 hover:text-blue-400 w-full text-end"
-                  onClick={() => {
-                    setTooglePassword((prev) => !prev);
-                  }}
+                {/* Password */}
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={tooglePassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className={`pr-10 ${
+                        touched.password && errors.password
+                          ? "border-destructive focus-visible:ring-destructive"
+                          : ""
+                      }`}
+                    />
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setTooglePassword((prev) => !prev)}
+                      className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 hover:bg-transparent"
+                    >
+                      {tooglePassword ? (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </div>
+
+                  <ErrorMessage
+                    name="password"
+                    component="p"
+                    className="text-sm text-destructive"
+                  />
+
+                  <div className="flex justify-end">
+                    <Button
+                      variant="link"
+                      type="button"
+                      onClick={handleForgetPassword}
+                      className="h-auto p-0 text-sm"
+                    >
+                      Forgot password?
+                    </Button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-11"
+                  disabled={isLoading}
                 >
-                  Show password
-                </button>
-              </div>
+                  {isLoading ? "Signing in..." : "Sign In"}
+                </Button>
+              </Form>
+            )}
+          </Formik>
 
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 transition-colors text-white font-semibold py-3 rounded-lg"
-              >
-                Sign In
-              </button>
-            </Form>
-          )}
-        </Formik>
-
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-700"></div>
+          <div className="mt-8 border-t pt-6 text-center text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <Button
+              variant="link"
+              className="h-auto p-0"
+              onClick={handleNavigate}
+            >
+              Sign Up
+            </Button>
           </div>
-
-          {/* <div className="relative flex justify-center">
-            <span className="bg-slate-900 px-3 text-sm text-slate-400">OR</span>
-          </div> */}
-        </div>
-
-        {/* <button
-          type="button"
-          className="w-full border border-slate-700 hover:bg-slate-800 transition-colors text-white py-3 rounded-lg font-medium"
-        >
-          Continue with Google
-        </button> */}
-
-        <p className="text-center text-slate-400 mt-6">
-          Don't have an account?{" "}
-          <button
-            type="button"
-            className="text-blue-500 hover:text-blue-400"
-            onClick={handleNavigate}
-          >
-            Sign Up
-          </button>
-        </p>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

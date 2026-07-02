@@ -26,7 +26,7 @@ const userApiSlice = commonApiSlice.injectEndpoints({
         method: "POST"
       })
     }),
-    getUser: builder.query<any, void>({
+    getUser: builder.query<any, any>({
       query: () => ({
         url: "/profile/view"
       }),
@@ -64,6 +64,20 @@ const userApiSlice = commonApiSlice.injectEndpoints({
         method: "POST"
       }),
       invalidatesTags: ["Connections"]
+    }),
+    forgetPassword: builder.mutation<any, { emailId: string }>({
+      query: (body) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body
+      })
+    }),
+    resetPassword: builder.mutation<any, { token: string; password: string }>({
+      query: (body) => ({
+        url: "profile/password",
+        method: "PATCH",
+        body
+      })
     })
   })
 });
@@ -79,5 +93,8 @@ export const {
   useUpdateProfileMutation,
   useGetPendingConnectionsQuery,
   useLazyGetPendingConnectionsQuery,
-  useReviewConnectionsMutation
+  useReviewConnectionsMutation,
+  useForgetPasswordMutation,
+  useLazyGetUserQuery,
+  useResetPasswordMutation
 } = userApiSlice;

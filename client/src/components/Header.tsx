@@ -5,6 +5,7 @@ import { removeUser } from "../store/slice/user";
 import { useAppDispatch, useAppSelector } from "../store/hook";
 import commonApiSlice from "../store/api/main/user.api";
 import { ModeToggle } from "@/utils/ThemeToogle";
+import Cookies from "js-cookie";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -14,11 +15,10 @@ const Header = () => {
   const handleLogout = async () => {
     const response = await logoutApi();
     if (response.data) {
+      Cookies.remove("token");
       dispatch(removeUser());
-      navigate("/login");
-      setTimeout(() => {
-        dispatch(commonApiSlice.util.resetApiState());
-      }, 0);
+      dispatch(commonApiSlice.util.resetApiState());
+      navigate("/login", { replace: true });
       return;
     }
     toast.error("Something went wrong");

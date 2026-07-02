@@ -8,6 +8,9 @@ import ProtectedRoute from "./ProtectedRoute";
 import Connections from "@/pages/Connections";
 import ProfileView from "@/pages/ProfileView";
 import ProfileEdit from "@/pages/ProfileEdit";
+import ForgotPassword from "@/pages/ForgotPassword";
+import EmailSentPage from "@/pages/EmailSentPage";
+import ResetPassword from "@/pages/ResetPassword";
 
 const routes = [
   {
@@ -17,6 +20,18 @@ const routes = [
   {
     path: "/signUp",
     element: <Signup />
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />
+  },
+  {
+    path: "/email-sent",
+    element: <EmailSentPage />
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPassword />
   },
   {
     element: <ProtectedRoute />,

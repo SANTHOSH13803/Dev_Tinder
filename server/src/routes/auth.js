@@ -4,6 +4,10 @@ const validator = require("validator");
 
 const { validateOnSignUp } = require("../utils/validators");
 const User = require("../models/user");
+const { errorResponse, successResponse } = require("../config/messages");
+const crypto = require("crypto");
+const PasswordResetModel = require("../models/passwordReset");
+const { sendEmail } = require("../utils/sendEmail");
 
 const authRouter = express.Router();
 authRouter.post("/signup", async (req, res) => {
@@ -66,5 +70,69 @@ authRouter.post("/logout", async (req, res) => {
       expires: new Date(Date.now())
     })
     .json({ data: "Logged Out successfully", success: true });
+});
+authRouter.post("/auth/forgot-password", async (req, res) => {
+  try {
+    const { emailId } = req.body;
+    if (!emailId) {
+      throw new Error("Enter Email Id");
+      return;
+    }
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      return successResponse({
+        res,
+        message:
+          "If the mail is registed. We have sent the forgot email. User Not found"
+      });
+    }
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    const isPrevReset = await PasswordResetModel.findOne({
+      userId: user._id
+    });
+    if (isPrevReset) {
+      isPrevReset.expiresAt = expiresAt;
+      isPrevReset.token = token;
+      await isPrevReset.save();
+    } else {
+      const newModel = new PasswordResetModel({
+        userId: user._id,
+        token,
+        expiresAt
+      });
+      await newModel.save();
+    }
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+
+    await sendEmail({
+      to: user.emailId,
+      subject: "Reset Your Password",
+      html: `
+    <h2>Reset Password</h2>
+    <p>Click the button below to reset your password.</p>
+
+    <a href="${resetLink}"
+       style="
+         background:#4F46E5;
+         color:white;
+         padding:12px 20px;
+         text-decoration:none;
+         border-radius:6px;
+       ">
+       Reset Password
+    </a>
+
+    <p>This link expires in 15 minutes.</p>
+  `
+    });
+    return successResponse({
+      res,
+      message: "If the mail is registed. We have sent the forgot email"
+    });
+  } catch (error) {
+    return errorResponse({ res, error: error.message });
+  }
 });
 module.exports = authRouter;
