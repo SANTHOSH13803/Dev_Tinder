@@ -31,7 +31,6 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const photoRouter = require("./routes/photo");
 const { transporter } = require("./utils/sendEmail");
-
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
@@ -43,6 +42,8 @@ conectDatabase()
     console.log("Database connected");
 
     app.listen(3000, () => {
+      console.log(process.env.EMAIL_USER);
+      console.log(process.env.EMAIL_PASS);
       console.log("Example app listening on port 3000!");
     });
   })
