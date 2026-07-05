@@ -42,8 +42,6 @@ conectDatabase()
     console.log("Database connected");
 
     app.listen(3000, () => {
-      console.log(process.env.EMAIL_USER);
-      console.log(process.env.EMAIL_PASS);
       console.log("Example app listening on port 3000!");
     });
   })
