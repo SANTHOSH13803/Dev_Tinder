@@ -65,6 +65,7 @@ const ProfileView = () => {
     try {
       const response = await deletePhotoApi({ photoId: selectedId }).unwrap();
       if (response.success) {
+        setShowDeleteDialog(false);
         toast.success("Photo Deleted successfully");
       }
     } catch (error) {

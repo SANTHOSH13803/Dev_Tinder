@@ -26,7 +26,7 @@ const userApiSlice = commonApiSlice.injectEndpoints({
         method: "POST"
       })
     }),
-    getUser: builder.query<any, any>({
+    getUser: builder.query<any, void>({
       query: () => ({
         url: "/profile/view"
       }),

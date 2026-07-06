@@ -58,14 +58,17 @@ profileRouter.patch(
         data.photoURL = result.secure_url;
       }
 
-      const updateUser = await User.findOneAndUpdate({ _id: user._id }, data, {
+      let updateUser = await User.findOneAndUpdate({ _id: user._id }, data, {
         returnDocument: "after"
       });
-
-      res.send(updateUser);
+      const parsedUser = await updateUser.getSafeUser();
+      return successResponse({
+        data: parsedUser,
+        res,
+        message: "Profile Update successfully"
+      });
     } catch (error) {
-      console.log(error);
-      res.status(400).send("Error: " + error.message);
+      return errorResponse({ res, error: error.message });
     }
   }
 );

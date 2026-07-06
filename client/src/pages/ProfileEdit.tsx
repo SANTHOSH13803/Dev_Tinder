@@ -1,8 +1,8 @@
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useEffect, useState } from "react";
-import { useAppSelector } from "../store/hook";
-import type { User } from "../store/slice/user";
+import { useAppDispatch, useAppSelector } from "../store/hook";
+import { addUser, type User } from "../store/slice/user";
 import { useUpdateProfileMutation } from "../store/api/user/userApi.slice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -15,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 import ProfilePicAvatar from "@/components/ProfilePicAvatar";
 import { LoadingOverlay } from "@/components/LoadingOverlay";
-import { toast } from "react-toastify";
 import {
   Select,
   SelectContent,
@@ -24,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { toast } from "react-toastify";
 type ProfileFormValues = {
   firstName: string;
   lastName: string;
@@ -59,6 +59,7 @@ const ProfileEdit = () => {
   const { user: userData } = useAppSelector((state) => state.user);
   const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
+  const dispatch = useAppDispatch();
   const [isPhotoDeleted, setIsPhotoDeleted] = useState(false);
   const [updateProfileApi] = useUpdateProfileMutation();
   const [user, setUser] = useState<User>({
@@ -75,7 +76,7 @@ const ProfileEdit = () => {
   const [isSaving, setIsSaving] = useState(false);
   const initialValues: ProfileFormValues = user;
 
-  const handleSubmit = async (values: ProfileFormValues) => {
+  const handleSubmit = async (values: Omit<ProfileFormValues, "_id">) => {
     try {
       setIsSaving(true);
       const formData = new FormData();
@@ -92,10 +93,10 @@ const ProfileEdit = () => {
         formData.append("photo", file);
       }
 
-      await updateProfileApi({ data: formData });
-      // no need to update store beacuase we wrote providesTags and invalidateTags in RTK QUIERY
+      const response = await updateProfileApi({ data: formData }).unwrap();
+      dispatch(addUser(response.data));
+      toast.success("Profile Updated Successfully");
     } catch (error) {
-      toast.error("Something went wrong");
       setIsSaving(false);
     } finally {
       setIsSaving(false);
