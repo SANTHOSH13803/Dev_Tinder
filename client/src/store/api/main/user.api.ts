@@ -1,3 +1,4 @@
+import { BASE_URL } from "@/constants/urls";
 import {
   createApi,
   fetchBaseQuery,
@@ -8,7 +9,7 @@ import {
 import { toast } from "react-toastify";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:3000/",
+  baseUrl: BASE_URL,
   credentials: "include"
 });
 
