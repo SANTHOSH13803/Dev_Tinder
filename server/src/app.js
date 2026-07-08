@@ -16,7 +16,7 @@ const userAuth = require("./middlewares/userAuth");
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://dev-tinder-dwvxgkqwj-dev-tinder.vercel.app",
+  "https://dev-tinder-teal.vercel.app/",
   process.env.CLIENT_URL
 ];
 
