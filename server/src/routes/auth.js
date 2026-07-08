@@ -53,9 +53,9 @@ authRouter.post("/login", async (req, res) => {
       // if true send response
       const token = await dbUser.getJwt(); // custom User Method
       res.cookie("token", token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
+        // httpOnly: true,
+        // secure: isProduction,
+        // sameSite: isProduction ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000
       });
       res.json({
