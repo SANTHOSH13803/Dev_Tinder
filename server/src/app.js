@@ -14,10 +14,13 @@ const { validateOnSignUp } = require("./utils/validators");
 const userAuth = require("./middlewares/userAuth");
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
-
+const clientUrl =
+  process.env.NODE_ENV === "production"
+    ? process.env.CLIENT_URL
+    : "http://localhost:5173";
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: clientUrl,
     credentials: true
   })
 );
