@@ -14,13 +14,23 @@ const { validateOnSignUp } = require("./utils/validators");
 const userAuth = require("./middlewares/userAuth");
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
-const clientUrl =
-  process.env.NODE_ENV === "production"
-    ? process.env.CLIENT_URL
-    : "http://localhost:5173";
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://dev-tinder-dwvxgkqwj-dev-tinder.vercel.app",
+  process.env.CLIENT_URL
+];
+
 app.use(
   cors({
-    origin: clientUrl,
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true
   })
 );
