@@ -8,6 +8,7 @@ const { errorResponse, successResponse } = require("../config/messages");
 const crypto = require("crypto");
 const PasswordResetModel = require("../models/passwordReset");
 const { sendEmail } = require("../utils/sendEmail");
+const isProduction = process.env.NODE_ENV === "production";
 
 const authRouter = express.Router();
 authRouter.post("/signup", async (req, res) => {
@@ -51,7 +52,12 @@ authRouter.post("/login", async (req, res) => {
     if (isValidPassword) {
       // if true send response
       const token = await dbUser.getJwt(); // custom User Method
-      res.cookie("token", token);
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
       res.json({
         data: dbUser,
         success: true
