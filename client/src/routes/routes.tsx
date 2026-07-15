@@ -11,6 +11,7 @@ import ProfileEdit from "@/pages/ProfileEdit";
 import ForgotPassword from "@/pages/ForgotPassword";
 import EmailSentPage from "@/pages/EmailSentPage";
 import ResetPassword from "@/pages/ResetPassword";
+import Chat from "@/pages/chat/Chat";
 
 const routes = [
   {
@@ -56,6 +57,10 @@ const routes = [
           {
             path: "/connections",
             element: <Connections />
+          },
+          {
+            path: "/chat/:userId",
+            element: <Chat />
           }
         ]
       }
