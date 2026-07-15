@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendEmail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
+  const response = await transporter.sendMail({
     from: '"DevTinder Support" <devtinder.app@gmail.com>',
     to,
     subject,

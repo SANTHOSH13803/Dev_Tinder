@@ -13,6 +13,9 @@ const conectDatabase = require("./config/database");
 const { validateOnSignUp } = require("./utils/validators");
 const userAuth = require("./middlewares/userAuth");
 
+// cron-jobs
+require("./utils/cron-jobs/cron-jobs");
+//
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const allowedOrigins = [
   "http://localhost:5173",
