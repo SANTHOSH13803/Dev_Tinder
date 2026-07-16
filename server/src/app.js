@@ -16,6 +16,10 @@ const userAuth = require("./middlewares/userAuth");
 // cron-jobs
 require("./utils/cron-jobs/cron-jobs");
 //
+// Socket.io
+const { createServer } = require("http");
+const initializeSocket = require("./utils/socket");
+
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const allowedOrigins = [
   "http://localhost:5173",
@@ -53,11 +57,15 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/photo", photoRouter);
 
+// socket initialization
+const httpServer = createServer(app);
+initializeSocket(httpServer);
+//
 conectDatabase()
   .then(() => {
     console.log("Database connected");
 
-    app.listen(3000, () => {
+    httpServer.listen(3000, () => {
       console.log("Example app listening on port 3000!");
     });
   })
