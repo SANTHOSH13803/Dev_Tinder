@@ -1,4 +1,6 @@
+import type { ApiResponse } from "@/generics/commonGenerics";
 import commonApiSlice from "../main/user.api";
+import type { User } from "@/types/user.type";
 type SendRequestPayload = {
   status: string;
   requestId: string;
@@ -32,6 +34,12 @@ const userApiSlice = commonApiSlice.injectEndpoints({
       }),
       providesTags: ["User"]
     }),
+    getUserById: builder.query<ApiResponse<User>, { id: string }>({
+      query: ({ id }) => ({
+        url: `/user/${id}`
+      }),
+      providesTags: ["User"]
+    }),
     getFeed: builder.query<any, { params: any }>({
       query: ({ params }) => ({
         url: "/user/feed",
@@ -57,6 +65,16 @@ const userApiSlice = commonApiSlice.injectEndpoints({
         url: `user/request/pending`
       }),
       providesTags: ["Connections"]
+    }),
+    getFriends: builder.query<any, void>({
+      query: () => ({
+        url: `user/connections`
+      })
+    }),
+    getChat: builder.query<any, { toUserId?: string }>({
+      query: ({ toUserId }) => ({
+        url: `chat/${toUserId}`
+      })
     }),
     reviewConnections: builder.mutation<any, SendRequestPayload>({
       query: ({ status, requestId }) => ({
@@ -96,5 +114,10 @@ export const {
   useReviewConnectionsMutation,
   useForgetPasswordMutation,
   useLazyGetUserQuery,
-  useResetPasswordMutation
+  useResetPasswordMutation,
+  useGetFriendsQuery,
+  useLazyGetFriendsQuery,
+  useGetUserByIdQuery,
+  useLazyGetUserByIdQuery,
+  useGetChatQuery
 } = userApiSlice;

@@ -1,5 +1,8 @@
 import ConnectionCard from "@/components/ConnectionCard";
-import { useLazyGetPendingConnectionsQuery } from "@/store/api/user/userApi.slice";
+import {
+  useLazyGetFriendsQuery,
+  useLazyGetPendingConnectionsQuery
+} from "@/store/api/user/userApi.slice";
 import type { PendingRequestUser } from "@/types/user.type";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -11,14 +14,30 @@ import {
   EmptyTitle
 } from "@/components/ui/empty";
 import { Page } from "@/components/Page";
-const Connections = () => {
+type ConnectionProps = {
+  view: boolean;
+};
+const Connections = ({ view }: ConnectionProps) => {
   const [connections, setConnections] = useState<PendingRequestUser[] | []>([]);
-  const [pendingConnectionApi, { isLoading, isFetching }] =
-    useLazyGetPendingConnectionsQuery();
+  const [
+    pendingConnectionApi,
+    {
+      isLoading: pendingConnectionLoading,
+      isFetching: pendingConnectionFetching
+    }
+  ] = useLazyGetPendingConnectionsQuery();
+  const [
+    getFriendsApi,
+    { isLoading: getFriendsLoading, isFetching: getFriendsFetching }
+  ] = useLazyGetFriendsQuery();
+
+  const isLoading = pendingConnectionLoading || getFriendsLoading;
+  const isFetching = pendingConnectionFetching || getFriendsFetching;
   const skeletonArray = Array.from({ length: 3 }, (_, i) => ({ name: i }));
   const fetchPendingConnectionRequest = async () => {
     try {
-      const response = await pendingConnectionApi().unwrap();
+      const fetcher = view ? getFriendsApi : pendingConnectionApi;
+      const response = await fetcher().unwrap();
       if (response.success) {
         setConnections(response.data);
       } else {
@@ -32,7 +51,7 @@ const Connections = () => {
 
   useEffect(() => {
     fetchPendingConnectionRequest();
-  }, []);
+  }, [view]);
 
   return (
     <Page className="">
@@ -59,6 +78,7 @@ const Connections = () => {
               <>
                 {connections.map((each) => (
                   <ConnectionCard
+                    view={view}
                     row={each}
                     key={each.requestId}
                     refetchConnections={fetchPendingConnectionRequest}

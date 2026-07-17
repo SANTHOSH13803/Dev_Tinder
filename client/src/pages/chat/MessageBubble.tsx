@@ -7,7 +7,7 @@ type Props = {
 };
 
 export default function MessageBubble({ sender, text, time }: Props) {
-  const { user } = useAppSelector((state) => state.user);
+  // const { user } = useAppSelector((state) => state.user);
   const mine = sender === "me";
 
   return (

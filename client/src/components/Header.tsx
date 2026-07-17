@@ -65,6 +65,11 @@ const Header = () => {
             </li>
             <li onClick={closeDropdown}>
               <Link className="justify-between" to={"/connections"}>
+                Connections
+              </Link>{" "}
+            </li>
+            <li onClick={closeDropdown}>
+              <Link className="justify-between" to={"/connections/pending"}>
                 Connection Requests
               </Link>{" "}
             </li>

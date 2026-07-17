@@ -10,14 +10,11 @@ export interface User {
   age: number;
 }
 
-export interface PendingRequestUser {
+export interface PendingRequestUser extends Pick<
+  User,
+  "firstName" | "lastName" | "about" | "skills" | "photoURL" | "age" | "_id"
+> {
   requestId: string;
-  firstName: string;
-  lastName: string;
-  age: number;
   gender: string;
-  about: string;
-  skills: string[];
-  photoURL: string;
   toUserId: string;
 }

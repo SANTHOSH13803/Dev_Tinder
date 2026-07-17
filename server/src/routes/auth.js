@@ -8,6 +8,8 @@ const { errorResponse, successResponse } = require("../config/messages");
 const crypto = require("crypto");
 const PasswordResetModel = require("../models/passwordReset");
 const { sendEmail } = require("../utils/sendEmail");
+const { USER_ALLOWED_FIELDS } = require("../utils/fields");
+const { toUserDto } = require("../utils/user");
 const isProduction = process.env.NODE_ENV === "production";
 
 const authRouter = express.Router();
@@ -58,16 +60,16 @@ authRouter.post("/login", async (req, res) => {
         // sameSite: isProduction ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000
       });
-      res.json({
-        data: dbUser,
-        success: true
+      return successResponse({
+        res,
+        data: toUserDto(dbUser)
       });
     } else {
       // if false throw error
       throw new Error("Password Entered is not valid");
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return errorResponse({ res, error: error.message });
   }
 });
 authRouter.post("/logout", async (req, res) => {

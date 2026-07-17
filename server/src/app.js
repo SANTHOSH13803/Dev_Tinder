@@ -51,11 +51,13 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const photoRouter = require("./routes/photo");
 const { transporter } = require("./utils/sendEmail");
+const chatRouter = require("./routes/chat");
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/photo", photoRouter);
+app.use("/chat", chatRouter);
 
 // socket initialization
 const httpServer = createServer(app);

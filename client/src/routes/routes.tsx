@@ -55,8 +55,12 @@ const routes = [
             element: <ProfileEdit />
           },
           {
+            path: "/connections/pending",
+            element: <Connections view={false} />
+          },
+          {
             path: "/connections",
-            element: <Connections />
+            element: <Connections view={true} />
           },
           {
             path: "/chat/:userId",

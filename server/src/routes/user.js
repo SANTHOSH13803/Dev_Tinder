@@ -35,7 +35,9 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       status: "accepted",
       $or: [
         {
-          fromUserId: loggedInuser._id,
+          fromUserId: loggedInuser._id
+        },
+        {
           toUserId: loggedInuser._id
         }
       ]
@@ -51,9 +53,9 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       }
       return connection.fromUserId;
     });
-    res.json({ data });
+    return successResponse({ res, data, statusCode: 200 });
   } catch (error) {
-    res.status(400).send(`Error : ${error.message}`);
+    return errorResponse({ res, error: error.message });
   }
 });
 
@@ -73,7 +75,6 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
         }
       ]
     }).select({ fromUserId: 1, toUserId: 1 });
-    console.log(connectionRequest, "TEST");
     const hideFromFeedIds = new Set();
 
     connectionRequest.forEach((each) => {
@@ -95,4 +96,19 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
     res.send("Error : " + error.message);
   }
 });
+userRouter.get("/user/:userId", userAuth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const dbUser = await User.findById(userId).select(USER_ALLOWED_FIELDS);
+    if (!dbUser) {
+      throw new Error("User Not found");
+    }
+
+    return successResponse({ res, data: dbUser });
+  } catch (error) {
+    return errorResponse({ res, error: error.message });
+  }
+});
+
 module.exports = userRouter;

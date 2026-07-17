@@ -2,12 +2,14 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import type { User } from "@/types/user.type";
 
-export default function ChatHeader() {
+type ChatHeaderProps = Pick<User, "firstName">;
+export default function ChatHeader({ firstName }: ChatHeaderProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 flex items-center gap-4 border-b bg-background px-4 py-3">
+    <header className="sticky top-0 z-1 flex items-center gap-4 border-b bg-background px-4 py-3">
       <Button
         variant="ghost"
         size="icon"
@@ -19,11 +21,11 @@ export default function ChatHeader() {
 
       <Avatar className="h-12 w-12">
         <AvatarImage src="/avatar.jpg" />
-        <AvatarFallback>R</AvatarFallback>
+        <AvatarFallback>{firstName?.[0] || ""}</AvatarFallback>
       </Avatar>
 
       <div className="flex-1">
-        <h2 className="font-semibold">Rahul</h2>
+        <h2 className="font-semibold">{firstName}</h2>
         <p className="text-sm text-green-500">Online</p>
       </div>
     </header>
