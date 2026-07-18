@@ -4,8 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/types/user.type";
 
-type ChatHeaderProps = Pick<User, "firstName">;
-export default function ChatHeader({ firstName }: ChatHeaderProps) {
+type ChatHeaderProps = Pick<User, "firstName"> & { isOnline: boolean };
+export default function ChatHeader({
+  firstName,
+  isOnline = false
+}: ChatHeaderProps) {
   const navigate = useNavigate();
 
   return (
@@ -26,7 +29,10 @@ export default function ChatHeader({ firstName }: ChatHeaderProps) {
 
       <div className="flex-1">
         <h2 className="font-semibold">{firstName}</h2>
-        <p className="text-sm text-green-500">Online</p>
+
+        <p className={`text-sm text-${isOnline ? "green" : "red"}-500`}>
+          {isOnline ? "Online" : "Offline"}
+        </p>
       </div>
     </header>
   );

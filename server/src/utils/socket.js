@@ -1,5 +1,12 @@
 const { Server } = require("socket.io");
 const ChatModel = require("../models/chat");
+
+const onlineUsers = new Map();
+
+const checkUserOnline = (userId) => {
+  return onlineUsers.has(userId);
+};
+
 const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -36,8 +43,19 @@ const initializeSocket = (server) => {
         console.log(error.message);
       }
     });
-    socket.on("disconnect", () => {});
+    socket.on("register-user", ({ userId }) => {
+      onlineUsers.set(userId, socket.id);
+      socket.userId = userId;
+      io.emit("user-online", { userId });
+    });
+    socket.on("disconnect", () => {
+      if (!socket.userId) return;
+      onlineUsers.delete(socket.userId);
+      io.emit("user-offline", {
+        userId: socket.userId
+      });
+    });
   });
 };
 
-module.exports = initializeSocket;
+module.exports = { initializeSocket, checkUserOnline };

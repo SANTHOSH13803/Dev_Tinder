@@ -44,6 +44,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<any>([]);
   const [inputValue, setInputValue] = useState("");
   const { user } = useAppSelector((state) => state.user);
+  const [isOnline, setIsOnline] = useState(false);
 
   const { userId: toUserId } = useParams<string>();
 
@@ -53,9 +54,9 @@ export default function Chat() {
     isFetching
   } = useGetUserByIdQuery({ id: toUserId as string }, { skip: !toUserId });
   const {
-    data: chatMetaData,
-    isLoading: chatLoading,
-    isFetching: chatFetching
+    data: chatMetaData
+    // isLoading: chatLoading,
+    // isFetching: chatFetching
   } = useGetChatQuery({ toUserId: toUserId }, { skip: !toUserId });
   const toUser = toUserData?.data;
   const chatData = chatMetaData?.data;
@@ -98,14 +99,32 @@ export default function Chat() {
       ]);
     });
 
+    socket.on("user-online", ({ userId }) => {
+      if (userId === toUserId) {
+        setIsOnline(true);
+      }
+    });
+
+    socket.on("user-offline", ({ userId }) => {
+      if (userId === toUserId) {
+        setIsOnline(false);
+      }
+    });
+
     return () => {
-      socket.disconnect();
+      socket.off("messageReceived");
     };
   }, [user, toUserId]);
+
+  useEffect(() => {
+    if (chatData) {
+      setIsOnline(chatData?.isOnline);
+    }
+  }, [chatData]);
   return (
     <div className="flex h-screen flex-col bg-background">
       <LoadingOverlay open={isLoading || isFetching} />
-      <ChatHeader firstName={toUser?.firstName || ""} />
+      <ChatHeader firstName={toUser?.firstName || ""} isOnline={isOnline} />
 
       <ScrollArea className="flex-1 px-4 py-6">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">

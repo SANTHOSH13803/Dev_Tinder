@@ -18,7 +18,7 @@ require("./utils/cron-jobs/cron-jobs");
 //
 // Socket.io
 const { createServer } = require("http");
-const initializeSocket = require("./utils/socket");
+const { initializeSocket } = require("./utils/socket");
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const allowedOrigins = [
