@@ -44,7 +44,6 @@ const Feed = () => {
       if (newCards.length < 10) {
         setHasMore(false);
       }
-      // console.log(1);
       setCards((prev) => [...newCards, ...prev]);
     } catch (error) {
       toast.error("Failed to load feed");
