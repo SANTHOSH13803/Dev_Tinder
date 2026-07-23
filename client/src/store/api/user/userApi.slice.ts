@@ -76,6 +76,11 @@ const userApiSlice = commonApiSlice.injectEndpoints({
         url: `chat/${toUserId}`
       })
     }),
+    getMessages: builder.query<any, { chatId: string }>({
+      query: ({ chatId }) => ({
+        url: `chat/${chatId}/messages`
+      })
+    }),
     reviewConnections: builder.mutation<any, SendRequestPayload>({
       query: ({ status, requestId }) => ({
         url: `request/review/${status}/${requestId}`,
@@ -119,5 +124,8 @@ export const {
   useLazyGetFriendsQuery,
   useGetUserByIdQuery,
   useLazyGetUserByIdQuery,
-  useGetChatQuery
+  useGetChatQuery,
+  useLazyGetChatQuery,
+  useLazyGetMessagesQuery,
+  useGetMessagesQuery
 } = userApiSlice;

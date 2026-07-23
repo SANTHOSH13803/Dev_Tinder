@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../store/hook";
 import commonApiSlice from "../store/api/main/user.api";
 import { ModeToggle } from "@/utils/ThemeToogle";
 import Cookies from "js-cookie";
+import createSocketInstance from "@/utils/socket";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -15,6 +16,9 @@ const Header = () => {
   const handleLogout = async () => {
     const response = await logoutApi();
     if (response.data) {
+      const socket = createSocketInstance();
+
+      socket.disconnect();
       Cookies.remove("token");
       dispatch(removeUser());
       dispatch(commonApiSlice.util.resetApiState());

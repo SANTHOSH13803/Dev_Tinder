@@ -11,12 +11,24 @@ const Layout = () => {
 
     const socket = createSocketInstance();
 
-    socket.emit("register-user", {
-      userId: user._id
-    });
+    // Register immediately if already connected
+    if (socket.connected) {
+      socket.emit("register-user", {
+        userId: user._id
+      });
+    }
+
+    // Register again on future reconnects
+    const handleConnect = () => {
+      socket.emit("register-user", {
+        userId: user._id
+      });
+    };
+
+    socket.on("connect", handleConnect);
 
     return () => {
-      socket.disconnect(); // optional on logout/unmount
+      socket.off("connect", handleConnect);
     };
   }, [user]);
   return (

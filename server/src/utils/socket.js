@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const ChatModel = require("../models/chat");
+const MessageModel = require("../models/messages");
 
 const onlineUsers = new Map();
 
@@ -16,29 +17,28 @@ const initializeSocket = (server) => {
 
   io.on("connection", (socket) => {
     // ... code goes here
-    socket.on("joinChat", ({ userId, toUserId, firstName }) => {
-      const roomId = [userId, toUserId].sort().join("$");
-      socket.join(roomId);
+    socket.on("joinChat", ({ chatId }) => {
+      socket.join(chatId);
     });
-    socket.on("sendMessage", async ({ firstName, userId, toUserId, text }) => {
+    socket.on("sendMessage", async ({ text, chatId, userId }) => {
       try {
-        const roomId = [userId, toUserId].sort().join("$");
-        let chat = await ChatModel.findOne({
-          participants: { $all: [userId, toUserId] }
+        const roomId = chatId;
+        // creating new message with chatid
+        let messages = new MessageModel({
+          chatId,
+          senderId: userId,
+          message: text
         });
-        if (!chat) {
-          chat = new ChatModel({
-            participants: [userId, toUserId],
-            messages: []
-          });
-          await chat.save();
-        }
-        chat.messages.push({
-          message: text,
-          senderId: userId
-        });
-        await chat.save();
-        io.to(roomId).emit("messageReceived", { firstName, message: text });
+        const response = await messages.save();
+
+        // updating lastMessage in chat
+
+        await ChatModel.findOneAndUpdate(
+          { _id: chatId },
+          { lastMessage: text }
+        );
+
+        io.to(roomId).emit("messageReceived", { message: response });
       } catch (error) {
         console.log(error.message);
       }
@@ -47,6 +47,16 @@ const initializeSocket = (server) => {
       onlineUsers.set(userId, socket.id);
       socket.userId = userId;
       io.emit("user-online", { userId });
+    });
+    socket.on("typing", ({ userId, chatId }) => {
+      socket.to(chatId).emit("typing", {
+        userId: socket.userId
+      });
+    });
+    socket.on("stop-typing", ({ userId, chatId }) => {
+      socket.to(chatId).emit("stop-typing", {
+        userId: socket.userId
+      });
     });
     socket.on("disconnect", () => {
       if (!socket.userId) return;

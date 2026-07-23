@@ -26,7 +26,6 @@ const Feed = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-
   const [getFeedApi] = useLazyGetFeedQuery();
 
   const fetchFeed = async (pageNumber: number) => {
@@ -82,6 +81,7 @@ const Feed = () => {
             setCards={setCards}
             loadNextPage={loadNextPage}
             hasMore={hasMore}
+            isFetchingNextPage={isFetchingNextPage}
             {...card}
           />
         ))}
@@ -101,6 +101,7 @@ type CardProps = CardsType & {
   setCards: React.Dispatch<React.SetStateAction<CardsType[]>>;
   loadNextPage: () => void;
   hasMore: boolean;
+  isFetchingNextPage?: boolean;
 };
 
 const Card = ({
@@ -112,7 +113,8 @@ const Card = ({
   cards,
   setCards,
   loadNextPage,
-  hasMore
+  hasMore,
+  isFetchingNextPage = false
 }: CardProps) => {
   const x = useMotionValue(0);
   const dragControls = useDragControls();
@@ -143,7 +145,7 @@ const Card = ({
     setCards((prev) => {
       const updatedCards = prev.filter((card) => card._id !== _id);
 
-      if (updatedCards.length === 2 && hasMore) {
+      if (updatedCards.length <= 4 && hasMore && !isFetchingNextPage) {
         loadNextPage();
       }
 
@@ -183,7 +185,7 @@ const Card = ({
     <motion.div
       draggable={false}
       onPointerDown={handlePointerDown}
-      className="relative h-[80vh] w-[80vw] overflow-visible rounded-3xl bg-cover bg-center md:w-[40vw] lg:w-[30vw]"
+      className="relative select-none h-[80vh] w-[80vw] overflow-visible rounded-3xl bg-cover bg-center md:w-[40vw] lg:w-[30vw]"
       style={{
         backgroundImage: `url(${photoURL})`,
         gridRow: 1,

@@ -1,9 +1,18 @@
 import { BASE_URL } from "@/constants/urls";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
+
+let socket: Socket | null = null;
 
 export default function createSocketInstance() {
-  if (location.hostname === "localhost") {
-    return io(BASE_URL);
+  if (!socket) {
+    if (location.hostname === "localhost") {
+      socket = io(BASE_URL);
+    } else {
+      socket = io("/", {
+        path: BASE_URL + "/socket.io"
+      });
+    }
   }
-  return io("/", { path: BASE_URL + "/socket.io" });
+
+  return socket;
 }
